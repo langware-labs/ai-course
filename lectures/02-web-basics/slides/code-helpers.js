@@ -238,7 +238,9 @@
     if (pop.hidden || pop.contains(e.target) || isEditor(e.target)) return;
     close();
   }, true);
-  document.addEventListener('scroll', e => { if (active && e.target === active.ta) close(); }, true);
+  // Capture, to catch the textarea's own scroll; passive, because this only
+  // ever closes a popup and never cancels the scroll.
+  document.addEventListener('scroll', e => { if (active && e.target === active.ta) close(); }, { capture: true, passive: true });
   pop.addEventListener('mousedown', e => { if (e.target.closest('[data-close]')) { e.preventDefault(); close(); } });
   // Typing changes the code under the picker: re-evaluate after the edit settles.
   document.addEventListener('input', e => { if (isEditor(e.target) && e.isTrusted) setTimeout(() => update(e.target), 0); }, true);

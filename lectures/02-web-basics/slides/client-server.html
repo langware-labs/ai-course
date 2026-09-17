@@ -212,65 +212,17 @@
   </div>
 </div>
 
+<script src="bakery-api.js"></script>
 <script>
 /* ─────────────────────────────── The server ───────────────────────────────
- * A small bakery API that lives inside this page. The student's code runs in a
+ * The bakery lives in `bakery-api.js`, next door. The student's code runs in a
  * sandboxed frame; its fetch() calls are relayed here and answered like a real
- * server would, so every request and response shows up in the network panel. */
-const HOST = 'https://bakery.flowpad.test';
-const MENU = [
-  { id: 1, name: 'Sourdough', type: 'bread', price: 18 },
-  { id: 2, name: 'Baguette', type: 'bread', price: 9 },
-  { id: 3, name: 'Croissant', type: 'pastry', price: 7 },
-  { id: 4, name: 'Cinnamon roll', type: 'pastry', price: 8 }
-];
-const orders = new Map();
-function newOrderId() {
-  const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let id = '';
-  for (let n = 0; n < 5; n++) id += abc[Math.floor(Math.random() * abc.length)];
-  return 'BK-' + id;
-}
-function json(status, body) { return { status, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }; }
-
-function handle(req) {
-  let url;
-  try { url = new URL(req.url, HOST); } catch (e) { return json(400, { error: 'That is not a valid URL' }); }
-  if (url.origin !== HOST) return json(502, { error: 'This lesson only reaches ' + HOST });
-  const method = (req.method || 'GET').toUpperCase();
-  const parts = url.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
-
-  if (parts[0] === 'menu' && parts.length === 1) {
-    if (method !== 'GET') return json(405, { error: 'Use GET to read the menu' });
-    const type = url.searchParams.get('type');
-    return json(200, type ? MENU.filter(i => i.type === type) : MENU);
-  }
-  if (parts[0] === 'menu' && parts.length === 2) {
-    if (method !== 'GET') return json(405, { error: 'Use GET to read a menu item' });
-    const item = MENU.find(i => String(i.id) === parts[1]);
-    return item ? json(200, item) : json(404, { error: 'No menu item with id ' + parts[1] });
-  }
-  if (parts[0] === 'orders' && parts.length === 1) {
-    if (method !== 'POST') return json(405, { error: 'Create an order with POST' });
-    let body;
-    try { body = JSON.parse(req.body || ''); } catch (e) {
-      return json(400, { error: 'The request body must be JSON. Did you JSON.stringify it?' });
-    }
-    const item = MENU.find(i => i.id === Number(body && body.item_id));
-    const quantity = Number(body && body.quantity);
-    if (!item) return json(400, { error: 'item_id must be the id of a menu item' });
-    if (!Number.isInteger(quantity) || quantity < 1) return json(400, { error: 'quantity must be a whole number, 1 or more' });
-    const order = { order_id: newOrderId(), item: item.name, quantity, total: item.price * quantity, status: 'baking' };
-    orders.set(order.order_id, order);
-    return json(201, order);
-  }
-  if (parts[0] === 'orders' && parts.length === 2) {
-    if (method !== 'GET') return json(405, { error: 'Read an order with GET' });
-    const order = orders.get(parts[1]);
-    return order ? json(200, order) : json(404, { error: 'No order ' + parts[1] });
-  }
-  return json(404, { error: 'Nothing at ' + url.pathname });
-}
+ * server would, so every request and response shows up in the network panel.
+ *
+ * Next door rather than in this page because the HTTP lab on the previous step
+ * aims at the same address, and a student who meets two different bakeries at
+ * one address learns the wrong lesson. */
+const { HOST, MENU, handle } = window.__bakery;
 
 /* ─────────────────────────────── The lessons ─────────────────────────────── */
 const SO = '<' + 'script>', SC = '<' + '/script>';
@@ -474,15 +426,15 @@ window.addEventListener('message', e => {
     const answer = handle(m);
     let url = null;
     try { url = new URL(m.url, HOST); } catch (err) {}
-    let responseJson = null;
-    try { responseJson = JSON.parse(answer.body); } catch (err) {}
+    const responseJson = answer.body;
+    const responseText = answer.body === null ? '' : JSON.stringify(answer.body);
     run.requests.push({
       method: m.method, url: m.url, path: url ? url.pathname.replace(/\/+$/, '') || '/' : m.url,
       search: url ? url.searchParams : new URLSearchParams(), requestHeaders: m.headers, requestBody: m.body,
-      status: answer.status, responseBody: answer.body, responseJson
+      status: answer.status, responseBody: responseText, responseJson
     });
     setTimeout(() => {
-      $('preview').contentWindow.postMessage({ kind: 'response', run: m.run, id: m.id, status: answer.status, headers: answer.headers, body: answer.body }, '*');
+      $('preview').contentWindow.postMessage({ kind: 'response', run: m.run, id: m.id, status: answer.status, headers: answer.headers, body: responseText }, '*');
     }, 180);
     renderLog();
   } else if (m.kind === 'console') {

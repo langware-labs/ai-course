@@ -12,70 +12,26 @@
 (function () {
   'use strict';
 
-  const HOST = 'bakery.flowpad.test';
+  const HOST = 'bakery.flowpad.test';  // the Host header; the API itself is window.__bakery
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const $ = id => document.getElementById(id);
-  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const listeners = [];
   const emit = () => listeners.forEach(fn => { try { fn(publicState()); } catch (e) {} });
 
-  /* ── The bakery, as a server would see it ────────────────────────────────── */
-  const MENU = [
-    { id: 1, name: 'חלה', type: 'bread', price: 18 },
-    { id: 2, name: 'בגט', type: 'bread', price: 12 },
-    { id: 3, name: 'קרואסון שוקולד', type: 'pastry', price: 9 },
-    { id: 4, name: 'עוגת גבינה', type: 'cake', price: 65 },
-    { id: 5, name: 'בורקס תפוחי אדמה', type: 'pastry', price: 8 }
-  ];
-  let orders = [{ id: 1832, item: 'חלה', qty: 2, status: 'baking' }];
-  let nextOrder = 1833;
-
-  // Answers like a real server: a status, headers and a body — or an error that explains itself.
-  function bakery({ method, path, query, body }) {
-    const json = (status, data, extra) => ({ status, headers: Object.assign({ 'Content-Type': 'application/json; charset=utf-8' }, extra || {}), body: data });
-    const idIn = p => Number((p.match(/^\/orders\/(\d+)$/) || [])[1]);
-
-    if (path === '/menu' && method === 'GET') {
-      const items = query.type ? MENU.filter(m => m.type === query.type) : MENU;
-      if (query.type && !items.length) return json(200, []);
-      return json(200, items, { 'Cache-Control': 'max-age=60' });
-    }
-    if (path === '/menu' && method !== 'GET') return json(405, { error: 'method not allowed', allow: 'GET' }, { Allow: 'GET' });
-
-    if (path === '/orders' && method === 'POST') {
-      if (!body || typeof body !== 'object') return json(400, { error: 'body must be JSON' });
-      if (!body.item) return json(400, { error: 'missing field', field: 'item' });
-      const known = MENU.some(m => m.name === body.item);
-      if (!known) return json(404, { error: 'we do not bake that', item: body.item });
-      const order = { id: nextOrder++, item: body.item, qty: Number(body.qty) || 1, status: 'baking' };
-      orders.push(order);
-      return json(201, order, { Location: '/orders/' + order.id });
-    }
-    if (path === '/orders' && method === 'GET') return json(200, orders);
-
-    const id = idIn(path);
-    if (id) {
-      const order = orders.find(o => o.id === id);
-      if (!order) return json(404, { error: 'no such order', id });
-      if (method === 'GET') return json(200, order);
-      if (method === 'PUT') {
-        if (!body || !body.qty) return json(400, { error: 'missing field', field: 'qty' });
-        order.qty = Number(body.qty);
-        return json(200, order);
-      }
-      if (method === 'DELETE') { orders = orders.filter(o => o.id !== id); return { status: 204, headers: {}, body: null }; }
-    }
-    return json(404, { error: 'not found', path });
-  }
+  /* The bakery is `bakery-api.js`, shared with the exercise module on the next
+   * step — same address, same menu, same answers. */
+  const bakery = req => window.__bakery.handle(req);
 
   /* ── What the student can try ────────────────────────────────────────────── */
   const QUICK = [
     { label: 'התפריט', method: 'GET', path: '/menu', why: 'הבקשה הכי פשוטה: תנו לי את התפריט.' },
     { label: 'רק לחמים', method: 'GET', path: '/menu?type=bread', why: 'הסימן ? בכתובת מוסיף פרטים לבקשה: רק type=bread.' },
-    { label: 'להזמין חלה', method: 'POST', path: '/orders', body: '{\n  "item": "חלה",\n  "qty": 2\n}', why: 'POST שולח מידע חדש בגוף הבקשה.' },
-    { label: 'לבטל הזמנה', method: 'DELETE', path: '/orders/1832', why: 'מספר ההזמנה הוא חלק מהכתובת.' },
+    { label: 'להזמין לחם', method: 'POST', path: '/orders', body: '{\n  "item_id": 1,\n  "quantity": 2\n}', why: 'POST שולח מידע חדש בגוף הבקשה.' },
+    { label: 'ההזמנות שלי', method: 'GET', path: '/orders', why: 'אותה כתובת, פעולה אחרת — וקוראים במקום ליצור.' },
+    { label: 'לבטל הזמנה', method: 'DELETE', path: '/orders/BK-7K2QM', why: 'מספר ההזמנה הוא חלק מהכתובת.' },
     { label: 'כתובת שלא קיימת', method: 'GET', path: '/pizza', why: 'אין כזה דבר במאפייה.' },
-    { label: 'הזמנה בלי שם מוצר', method: 'POST', path: '/orders', body: '{\n  "qty": 2\n}', why: 'שכחנו שדה — והשרת מסביר מה חסר.' }
+    { label: 'הזמנה בלי מוצר', method: 'POST', path: '/orders', body: '{\n  "quantity": 2\n}', why: 'שכחנו שדה — והשרת מסביר מה חסר.' }
   ];
   const METHODS = [
     { m: 'GET', tip: 'לקבל מידע', body: false },
@@ -170,7 +126,9 @@
       if (REDUCED) { setTimeout(done, 500); return; }
       const [a, b] = kind === 'req' ? ['100%', '0%'] : ['0%', '100%'];
       pill.animate([{ left: a, opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 1, offset: 0.85 }, { left: b, opacity: 0 }],
-        { duration: 1200, easing: 'cubic-bezier(.45,.05,.35,1)' }).finished.then(done, done);
+        // Same flight as the HTTP demo on the previous step: one packet, one
+        // speed, so the two screens read as one idea.
+        { duration: 1500, easing: 'cubic-bezier(.45,.05,.35,1)' }).finished.then(done, done);
     });
   }
 

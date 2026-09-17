@@ -67,10 +67,9 @@
   .sub.teal .ex button.on { background: var(--teal); border-color: var(--teal); }
   .sub .now { font-size: 13px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: ltr; unicode-bidi: isolate; }
   .step.k-module.on { box-shadow: 0 6px 0 -2px var(--paper-2), 0 6px 0 -1px var(--line); }
-  .brand { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+  .brand { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
   .brand b { font-size: 17px; font-weight: 800; letter-spacing: -.01em; }
   .brand > span { font-size: 13px; color: var(--muted); }
-  .brand { align-items: center; }
   .restart { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; margin-right: 4px; border: 1px solid transparent; border-radius: 8px;
              background: none; color: var(--muted); font-size: 12.5px; cursor: pointer; white-space: nowrap; }
   .restart:hover { background: var(--paper-3); color: var(--ink-3); }
@@ -200,10 +199,6 @@
   .map b { display: block; font-size: 16px; margin: 4px 0; }
   .map span { font-size: 14px; color: var(--ink-3); line-height: 1.5; }
 
-  .diagram { background: var(--paper-2); border: 1px solid var(--line); border-radius: 6px; padding: 26px 20px 18px; margin-bottom: 36px; }
-  .diagram svg { width: 100%; height: auto; display: block; direction: ltr; }
-  .analogy { display: grid; grid-template-columns: 1fr 1.4fr; gap: 36px; align-items: start; margin-bottom: 36px; }
-  .analogy blockquote { margin: 0; font-size: 19px; line-height: 1.6; color: var(--ink-2); border-right: 3px solid var(--teal); padding-right: 18px; }
   .terms { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .term { background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; }
   .term code { font-size: 13px; font-weight: 700; color: var(--teal); }
@@ -296,7 +291,7 @@
   .http-mode.on code { color: #fff; }
   #httpPlay, .live-state { margin-right: auto; }
   #httpPlay { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); cursor: pointer; }
-  .wire { display: grid; grid-template-columns: 96px minmax(0, 1fr) 96px; align-items: center; height: 120px; }
+  .wire { display: grid; grid-template-columns: 96px minmax(0, 1fr) 96px; align-items: center; height: 150px; }
   .wire .end { display: grid; justify-items: center; gap: 3px; text-align: center; }
   .wire .end .dot { width: 46px; height: 46px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 6px rgba(30,24,20,.06); transition: transform .2s, box-shadow .3s; }
   .wire .end.client .dot { background: #E4572E; } .wire .end.server .dot { background: #1F8A83; }
@@ -310,7 +305,6 @@
   .pkt.req { background: #E4572E; margin-top: -16px; } .pkt.res { background: #1F8A83; margin-top: 16px; } .pkt.ws { background: #7A4FB8; }
   .http-say { margin: 8px 0 0; font-size: 15.5px; color: var(--ink-2); line-height: 1.6; }
   .http-wait { margin: auto; color: var(--muted); font-size: 14px; }
-  .wire { height: 150px !important; }
   #httpInspect { background: var(--paper-2); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; min-width: 0; display: flex; flex-direction: column; }
   .msgs { display: grid; gap: 10px; overflow-y: auto; max-height: 360px; padding: 2px; align-content: start; }
   .msg { border-radius: 10px; background: var(--code-bg); color: var(--code-ink); opacity: .55; transition: opacity .3s, box-shadow .3s; }
@@ -682,10 +676,12 @@
     <div class="actions"><button class="yes" id="restartYes">התחלה מחדש</button><button class="no" id="restartNo">ביטול</button></div>
   </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/konva@9.3.22/konva.min.js"></script>
-<script src="network-map.js"></script>
-<script src="http-demo.js"></script>
-<script src="http-lab.js"></script>
+<!-- Konva draws the map on step 5; nothing before it needs the parser to wait. -->
+<script defer src="https://cdn.jsdelivr.net/npm/konva@9.3.22/konva.min.js"></script>
+<script defer src="network-map.js"></script>
+<script defer src="http-demo.js"></script>
+<script defer src="bakery-api.js"></script>
+<script defer src="http-lab.js"></script>
 <script>
 const LECTURE = '02-web-basics';
 const STEPS = [
@@ -693,9 +689,12 @@ const STEPS = [
   { id: 'how', title: 'איך עובדים', short: 'איך עובדים', part: 'פתיחה', kind: 'slide' },
   { id: 'html-intro', title: 'מבוא ל-HTML', short: 'מבוא', part: 'HTML', kind: 'slide' },
   { id: 'html', title: 'מודול HTML', short: 'תרגילים', part: 'HTML', kind: 'module', src: 'html-module.html' },
-  { id: 'internet', title: 'רשת האינטרנט', short: 'האינטרנט', part: 'שרת ולקוח', kind: 'app' },
-  { id: 'http', title: 'HTTP', short: 'HTTP', part: 'שרת ולקוח', kind: 'app' },
-  { id: 'cs-intro', title: 'מבוא לשרת ולקוח', short: 'מבוא', part: 'שרת ולקוח', kind: 'slide' },
+  { id: 'internet', title: 'רשת האינטרנט', short: 'האינטרנט', part: 'שרת ולקוח', kind: 'app',
+    app: '__networkMap', reports: 'internet_map', event: 'map_changed' },
+  { id: 'http', title: 'HTTP', short: 'HTTP', part: 'שרת ולקוח', kind: 'app',
+    app: '__httpDemo', reports: 'http', event: 'http_changed' },
+  { id: 'cs-intro', title: 'מבוא לשרת ולקוח', short: 'מבוא', part: 'שרת ולקוח', kind: 'slide',
+    app: '__httpLab', reports: 'http_lab', event: 'request_sent' },
   { id: 'client-server', title: 'מודול שרת ולקוח', short: 'תרגילים', part: 'שרת ולקוח', kind: 'module', src: 'client-server.html' }
 ];
 const ICONS = {
@@ -713,14 +712,14 @@ try {
 
 /* The module in the frame drives its own exercises; the bar reads it through
  * window.__lessonNav (same origin) and is told of changes via __onModuleNav. */
-let pendingEntry = null; // 'last' when entering a module backwards
+let enterAtLast = false; // entering a module backwards lands on its LAST exercise
 const moduleNav = () => {
   const f = document.querySelector('.module-frame');
   try { return f && f.contentWindow && f.contentWindow.__lessonNav || null; } catch (e) { return null; }
 };
 window.__onModuleNav = () => {
   const nav = moduleNav();
-  if (nav && pendingEntry === 'last') { pendingEntry = null; nav.go(nav.count - 1); return; }
+  if (nav && enterAtLast) { enterAtLast = false; nav.go(nav.count - 1); return; }
   render();
 };
 
@@ -772,7 +771,7 @@ function backward() {
   const nav = STEPS[current].kind === 'module' ? moduleNav() : null;
   if (nav && nav.index() > 0) return nav.go(nav.index() - 1);
   const target = current - 1;
-  if (target >= 0 && STEPS[target].kind === 'module') pendingEntry = 'last';
+  if (target >= 0 && STEPS[target].kind === 'module') enterAtLast = true;
   go(target);
 }
 
@@ -791,6 +790,10 @@ function mountModule(step) {
   $('stage').appendChild(frame);
 }
 
+/* The interactive app a step declares, once it has loaded. A step without one
+ * — a plain slide, a framed module — simply has nothing to start or report. */
+const appOf = step => (step.app ? window[step.app] : null) || null;
+
 function report(eventType) {
   const b = window.__lessonBridge;
   const step = STEPS[current];
@@ -802,24 +805,25 @@ function report(eventType) {
             steps: STEPS.map((s, n) => (n + 1) + '. ' + s.title) },
     last_event: { type: eventType || 'step_changed', at: new Date().toISOString() }
   };
-  // On the map: which app the student is exploring and which hop is on the card.
-  if (step.id === 'internet' && window.__networkMap) state.internet_map = window.__networkMap.state();
-  if (step.id === 'http' && window.__httpDemo) state.http = window.__httpDemo.state();
-  if (step.id === 'cs-intro' && window.__httpLab) state.http_lab = window.__httpLab.state();
+  // Whatever the student is playing with on this step — which app, which hop,
+  // which request. The step says where to read it from, so a new interactive
+  // step is a row in STEPS, never an edit here.
+  const live = appOf(step);
+  if (live) state[step.reports] = live.state();
   b.context(state);
 }
 
 function go(n) {
   if (n < 0 || n >= STEPS.length) return;
-  if (STEPS[n].kind !== 'module') pendingEntry = null;
+  if (STEPS[n].kind !== 'module') enterAtLast = false;
   current = n;
   seen[current] = true;
   try { localStorage.setItem(STORE, JSON.stringify({ step: current, seen })); } catch (e) {}
   render();
   mountModule(STEPS[current]);
-  if (window.__networkMap) STEPS[current].id === 'internet' ? window.__networkMap.show() : window.__networkMap.hide();
-  if (window.__httpDemo) STEPS[current].id === 'http' ? window.__httpDemo.show() : window.__httpDemo.hide();
-  if (window.__httpLab && STEPS[current].id === 'cs-intro') window.__httpLab.show();
+  // Exactly one app runs at a time: everything else is told to stop, so no
+  // timer, animation or video keeps burning through the rest of the lesson.
+  STEPS.forEach((s, n) => { const a = appOf(s); if (a) { if (n === current) a.show(); else a.hide(); } });
   document.querySelectorAll('.slide.on').forEach(el => { el.scrollTop = 0; });
   report();
 }
@@ -830,7 +834,8 @@ $('prev').addEventListener('click', backward);
 $('next').addEventListener('click', forward);
 document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => go(STEPS.findIndex(s => s.id === b.dataset.go))));
 document.addEventListener('keydown', e => {
-  if (!$('confirmRestart').hidden || STEPS[current].kind === 'module' || e.target.closest('textarea, input')) return;
+  if (!$('confirmRestart').hidden) { if (e.key === 'Escape') $('confirmRestart').hidden = true; return; }
+  if (STEPS[current].kind === 'module' || e.target.closest('textarea, input')) return;
   if (e.key === 'ArrowLeft') forward();   // RTL: left is forward
   if (e.key === 'ArrowRight') backward();
 });
@@ -842,20 +847,21 @@ function restartCourse() {
   document.querySelectorAll('.module-frame').forEach(f => f.remove()); // unmount first, so nothing re-saves
   COURSE_STORES.forEach(key => { try { localStorage.removeItem(key); } catch (e) {} });
   seen = {};
-  pendingEntry = null;
+  enterAtLast = false;
   go(0);
 }
 $('restart').addEventListener('click', () => { $('confirmRestart').hidden = false; $('restartNo').focus(); });
 $('restartNo').addEventListener('click', () => { $('confirmRestart').hidden = true; });
 $('confirmRestart').addEventListener('click', e => { if (e.target === e.currentTarget) $('confirmRestart').hidden = true; });
 $('restartYes').addEventListener('click', () => { $('confirmRestart').hidden = true; restartCourse(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') $('confirmRestart').hidden = true; });
-
-if (window.__networkMap) window.__networkMap.onChange(() => report('map_changed'));
-if (window.__httpDemo) window.__httpDemo.onChange(() => report('http_changed'));
-if (window.__httpLab) window.__httpLab.onChange(() => report('request_sent'));
-go(current);
-if (window.__lessonBridge) window.__lessonBridge.ready.then(report, () => {});
+/* The step apps are deferred scripts, so they exist only once parsing is done —
+ * which is exactly when the course may start. Everything above is definitions;
+ * these three lines are the ones that need the apps to be there. */
+document.addEventListener('DOMContentLoaded', () => {
+  STEPS.forEach(s => { const a = appOf(s); if (a) a.onChange(() => report(s.event)); });
+  go(current);
+  if (window.__lessonBridge) window.__lessonBridge.ready.then(report, () => {});
+});
 </script>
 </body>
 </html>

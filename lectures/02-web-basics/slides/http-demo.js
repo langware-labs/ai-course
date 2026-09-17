@@ -266,7 +266,6 @@
       if (live.state === 'buffering') logRow({ what: '⏳ מחכים לחתיכה הבאה', kind: 'note' });
       if (live.state === 'paused') logRow({ what: '⏸ בהשהיה — הנגן מפסיק לבקש חתיכות כשיש לו מספיק', kind: 'note' });
       if (live.state === 'ended') logRow({ what: 'הסרטון נגמר', kind: 'note' });
-      logPlayerResources();
       emit();
     }
     renderLive();
@@ -345,6 +344,13 @@
     },
     hide() {
       demo.token++;
+      // Everything this slide started has to stop here. The buffer poll is the
+      // one that bites: a paused video keeps buffering, so a poll left running
+      // goes on drawing packets onto an invisible wire — and queueing them —
+      // for the rest of the lesson.
+      clearInterval(live.poll);
+      live.poll = null;
+      live.queue = Promise.resolve();
       try { live.player && live.player.pauseVideo && live.player.pauseVideo(); } catch (e) {}
     },
     state: publicState,

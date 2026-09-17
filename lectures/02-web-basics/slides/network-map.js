@@ -247,14 +247,17 @@
   const current = () => APP[state.app] || null;
   const emit = () => listeners.forEach(fn => { try { fn(publicState()); } catch (e) {} });
 
+  const labelOf = (a, id) => a.nodes.find(n => n.id === id).label;
+
   function publicState() {
     const a = current();
     if (!a) return { example: null };
     const step = a.steps[state.step];
-    const label = id => a.nodes.find(n => n.id === id).label;
+    const label = id => labelOf(a, id);
     return {
       example: a.id, step: state.step + 1, steps: a.steps.length + 1, title: step ? step.title : 'מה למדנו',
-      hops: step ? flatHops(step).map(([f, t, k, l]) => ({ from: label(f), to: label(t), kind: k === 'req' ? 'request' : 'response', label: l })) : 'fact'
+      // The summary card has no hops — an empty list, not a sentinel string.
+      hops: step ? flatHops(step).map(([f, t, k, l]) => ({ from: label(f), to: label(t), kind: k === 'req' ? 'request' : 'response', label: l })) : []
     };
   }
 
@@ -375,7 +378,7 @@
 
       g.on('mouseenter', () => { $('netStage').style.cursor = 'pointer'; showTip(n, g); bump(g); });
       g.on('mouseleave', () => { $('netStage').style.cursor = ''; hideTip(); });
-      g.on('click tap', () => { if (n.app) select(n.app); else if (!n.app) showTip(n, g); });
+      g.on('click tap', () => { if (n.app) select(n.app); else showTip(n, g); });
       layer.add(g);
       nodes[n.id] = { g, ring, base, halo, badge };
 
@@ -558,7 +561,7 @@
 
   const hopList = (a, step, done) => {
     if (!step) return '';
-    const label = id => a.nodes.find(n => n.id === id).label;
+    const label = id => labelOf(a, id);
     return '<ol class="net-hops">' + flatHops(step).map(([f, t, k, l], i) =>
       `<li class="${k}${i < done ? ' done' : i === done ? ' now' : ''}"><span class="who">${label(f)} ← ${label(t)}</span><span class="what">${l}</span></li>`).join('') + '</ol>';
   };
