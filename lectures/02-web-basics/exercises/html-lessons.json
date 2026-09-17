@@ -1,0 +1,272 @@
+{
+  "source": "slides/html-module.html",
+  "storage_key": "handmade-web-v1",
+  "lessons": [
+    {
+      "index": 0,
+      "kicker": "Lesson 01 · HTML",
+      "title": "A page is a stack of tags",
+      "file": "index.html",
+      "blurb": "HTML marks up meaning. Every piece of content sits between an opening tag and a closing tag, and the browser turns those tags into things you can see.",
+      "notes": [
+        "A tag looks like <p>text</p>. The slash marks the end.",
+        "<h1> is the loudest heading on a page. <p> is a paragraph.",
+        "Type in the dark panel. The white panel updates as you type."
+      ],
+      "starter_code": "<h1>My first page</h1>\n<p>I am writing HTML by hand.</p>",
+      "tasks": [
+        {
+          "label": "Add a second paragraph below the first",
+          "check": "c => (c.match(/<p[\\s>]/gi) || []).length >= 2"
+        },
+        {
+          "label": "Add an <h2> heading somewhere",
+          "check": "c => /<h2[\\s>][\\s\\S]*<\\/h2>/i.test(c)"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "kicker": "Lesson 02 · HTML",
+      "title": "Text that carries emphasis",
+      "file": "text.html",
+      "blurb": "Headings run from h1 down to h6, loudest to quietest. Inside a paragraph you can mark words as strong or emphasised, and the browser styles them for you.",
+      "notes": [
+        "<strong> means important. <em> means stressed.",
+        "Tags nest: <p>a <strong>bold</strong> word</p>.",
+        "Line breaks in your code do not create space on the page."
+      ],
+      "starter_code": "<h1>Bread</h1>\n<h3>A short history</h3>\n<p>Flour, water, salt and time.</p>",
+      "tasks": [
+        {
+          "label": "Wrap one word in <strong>",
+          "check": "c => /<strong>[\\s\\S]+<\\/strong>/i.test(c)"
+        },
+        {
+          "label": "Wrap another word in <em>",
+          "check": "c => /<em>[\\s\\S]+<\\/em>/i.test(c)"
+        },
+        {
+          "label": "Add an <h2> between the h1 and the h3",
+          "check": "c => /<h2[\\s>][\\s\\S]*<\\/h2>/i.test(c)"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "kicker": "Lesson 03 · HTML",
+      "title": "Links and images use attributes",
+      "file": "links.html",
+      "blurb": "Some tags need extra information. That goes in attributes inside the opening tag: href says where a link points, src says which image to load, alt describes it in words.",
+      "notes": [
+        "A link: <a href=\"https://example.com\">click me</a>",
+        "<img> has no closing tag. It carries src and alt instead.",
+        "alt text matters: it is what screen readers and broken images show."
+      ],
+      "starter_code": "<h1>Look at this</h1>\n<img src=\"data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='320'%20height='180'%3E%3Crect%20width='320'%20height='180'%20fill='%23eee'/%3E%3Ctext%20x='160'%20y='96'%20font-family='sans-serif'%20font-size='18'%20fill='%23999'%20text-anchor='middle'%3Ephoto%3C/text%3E%3C/svg%3E\" alt=\"A grey placeholder\" />",
+      "tasks": [
+        {
+          "label": "Add a link with an href attribute",
+          "check": "c => /<a\\s[^>]*href\\s*=\\s*[\"'][^\"']+[\"']/i.test(c)"
+        },
+        {
+          "label": "Give the image different alt text",
+          "check": "c => /alt\\s*=\\s*[\"'][^\"']+[\"']/i.test(c) && !/alt\\s*=\\s*[\"']A grey placeholder[\"']/i.test(c)"
+        },
+        {
+          "label": "Make the link open in a new tab with target=\"_blank\"",
+          "check": "c => /<a\\s[^>]*target\\s*=\\s*[\"']_blank[\"']/i.test(c)"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "kicker": "Lesson 04 · HTML",
+      "title": "Lists and tables hold sets",
+      "file": "lists.html",
+      "blurb": "When content comes in a set, say so. An unordered list is <ul> with <li> children; a numbered one is <ol>. Tables use rows of <tr> holding <th> headers and <td> cells.",
+      "notes": [
+        "Only <li> belongs directly inside <ul> or <ol>.",
+        "A table row lives in <tr>; cells go inside it.",
+        "Use a table for real tabular data, never for page layout."
+      ],
+      "starter_code": "<h2>Shopping</h2>\n<ul>\n  <li>Flour</li>\n  <li>Salt</li>\n</ul>",
+      "tasks": [
+        {
+          "label": "Add a third <li> to the list",
+          "check": "c => (c.match(/<li[\\s>]/gi) || []).length >= 3"
+        },
+        {
+          "label": "Add a numbered <ol> list with at least two items",
+          "check": "c => /<ol[\\s>][\\s\\S]*<\\/ol>/i.test(c) && (c.match(/<li[\\s>]/gi) || []).length >= 5"
+        },
+        {
+          "label": "Add a <table> with a header row and a data row",
+          "check": "c => /<table[\\s>][\\s\\S]*<\\/table>/i.test(c) && /<th[\\s>]/i.test(c) && /<td[\\s>]/i.test(c)"
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "kicker": "Lesson 05 · CSS",
+      "title": "CSS paints the markup",
+      "file": "style.html",
+      "blurb": "CSS rules pick elements and set properties on them. A rule is a selector, then braces holding property and value pairs. Put your rules inside a style tag.",
+      "notes": [
+        "h1 { color: crimson; } picks every h1 on the page.",
+        "font-family sets the typeface; background fills behind an element.",
+        "Change a value and watch the preview repaint."
+      ],
+      "starter_code": "<style>\n  body { font-family: Georgia, serif; }\n  h1 { color: #b8461f; }\n</style>\n\n<h1>Coloured type</h1>\n<p>This paragraph is still plain.</p>",
+      "tasks": [
+        {
+          "label": "Give the paragraph a colour of your choice",
+          "check": "c => /(^|[\\s,{}])p\\s*\\{[^}]*color\\s*:/i.test(c)"
+        },
+        {
+          "label": "Set a background on body",
+          "check": "c => /body\\s*\\{[^}]*background/i.test(c)"
+        },
+        {
+          "label": "Change any font-size",
+          "check": "c => /font-size\\s*:/i.test(c)"
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "kicker": "Lesson 06 · CSS",
+      "title": "Every element is a box",
+      "file": "box.html",
+      "blurb": "Each element occupies a rectangle: content, then padding inside the edge, then a border, then margin pushing neighbours away. Spacing is mostly choosing these four.",
+      "notes": [
+        "padding is space inside the border, margin is space outside it.",
+        "A class targets a group: .card in CSS matches class=\"card\".",
+        "border-radius rounds the corners of the box."
+      ],
+      "starter_code": "<style>\n  .card {\n    background: #f4e9d6;\n    padding: 16px;\n    border: 1px solid #e0d0b7;\n  }\n</style>\n\n<div class=\"card\">\n  <h3>A card</h3>\n  <p>Boxed content.</p>\n</div>",
+      "tasks": [
+        {
+          "label": "Add a margin to .card",
+          "check": "c => /\\.card\\s*\\{[^}]*margin\\s*:/i.test(c)"
+        },
+        {
+          "label": "Round the corners with border-radius",
+          "check": "c => /border-radius\\s*:/i.test(c)"
+        },
+        {
+          "label": "Add a second element using class=\"card\"",
+          "check": "c => (c.match(/class\\s*=\\s*[\"'][^\"']*card/gi) || []).length >= 2"
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "kicker": "Lesson 07 · CSS",
+      "title": "Flexbox arranges children",
+      "file": "flex.html",
+      "blurb": "Set display: flex on a container and its children line up along one axis. gap spaces them, justify-content distributes them along the row, align-items lines them up across it.",
+      "notes": [
+        "flex-direction: column stacks the children instead.",
+        "gap replaces fiddling with margins between items.",
+        "Try justify-content: space-between and see what moves."
+      ],
+      "starter_code": "<style>\n  .row { display: flex; gap: 12px; }\n  .box { background: #211b16; color: #fbf3e7; padding: 20px; }\n</style>\n\n<div class=\"row\">\n  <div class=\"box\">one</div>\n  <div class=\"box\">two</div>\n</div>",
+      "tasks": [
+        {
+          "label": "Add a third .box",
+          "check": "c => (c.match(/class\\s*=\\s*[\"'][^\"']*box/gi) || []).length >= 3"
+        },
+        {
+          "label": "Use justify-content on .row",
+          "check": "c => /justify-content\\s*:/i.test(c)"
+        },
+        {
+          "label": "Use align-items on .row",
+          "check": "c => /align-items\\s*:/i.test(c)"
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "kicker": "Lesson 08 · JavaScript",
+      "title": "Variables remember values",
+      "file": "vars.html",
+      "blurb": "JavaScript runs inside a script tag. A variable is a name holding a value: let for something that changes, const for something fixed. Text in quotes joins together with a plus.",
+      "notes": [
+        "document.write is crude, but it shows the result immediately.",
+        "Numbers do arithmetic; strings in quotes concatenate.",
+        "Every statement usually ends with a semicolon."
+      ],
+      "starter_code": "<script>\n  const name = \"friend\";\n  let visits = 1;\n  document.write(\"Hello \" + name + \", visit number \" + visits);\n</script>",
+      "tasks": [
+        {
+          "label": "Change the name value to your own",
+          "check": "c => /const\\s+name\\s*=\\s*[\"'](?!friend[\"'])[^\"']+[\"']/i.test(c)"
+        },
+        {
+          "label": "Declare one more variable",
+          "check": "c => (c.match(/\\b(let|const)\\s+[A-Za-z_$]/g) || []).length >= 3"
+        },
+        {
+          "label": "Do some arithmetic, e.g. visits + 1",
+          "check": "c => /[A-Za-z_$][\\w$]*\\s*[+\\-*\\/]\\s*\\d/.test(c)"
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "kicker": "Lesson 09 · JavaScript",
+      "title": "Reaching into the page",
+      "file": "dom.html",
+      "blurb": "The DOM is your HTML as objects JavaScript can touch. Find an element, then read or change it. Hook a function to an event and it runs when the user acts.",
+      "notes": [
+        "document.getElementById(\"out\") finds the element with id=\"out\".",
+        "textContent replaces the text inside an element.",
+        "addEventListener(\"click\", fn) runs fn on every click."
+      ],
+      "starter_code": "<button id=\"go\">Press me</button>\n<p id=\"out\">nothing yet</p>\n\n<script>\n  const btn = document.getElementById(\"go\");\n  btn.addEventListener(\"click\", function () {\n    document.getElementById(\"out\").textContent = \"pressed!\";\n  });\n</script>",
+      "tasks": [
+        {
+          "label": "Change the text the click writes out",
+          "check": "c => /textContent\\s*=\\s*[\"'](?!pressed![\"'])[^\"']+[\"']/i.test(c)"
+        },
+        {
+          "label": "Add a second button with its own id",
+          "check": "c => (c.match(/<button/gi) || []).length >= 2 && (c.match(/id\\s*=\\s*[\"'][^\"']+[\"']/gi) || []).length >= 3"
+        },
+        {
+          "label": "Listen for a second event, e.g. mouseover",
+          "check": "c => (c.match(/addEventListener/g) || []).length >= 2"
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "kicker": "Lesson 10 · JavaScript",
+      "title": "Choosing between paths",
+      "file": "logic.html",
+      "blurb": "An if statement runs a block only when a condition is true, and else covers the rest. Compare with === for equality, or with > and < for size. This is where a page starts making decisions.",
+      "notes": [
+        "=== compares, = assigns. Mixing them up is the classic first bug.",
+        "else if chains several conditions in order.",
+        "Combine conditions with && (and) or || (or)."
+      ],
+      "starter_code": "<p id=\"out\"></p>\n\n<script>\n  const hour = 9;\n  let greeting;\n  if (hour < 12) {\n    greeting = \"Good morning\";\n  } else {\n    greeting = \"Good afternoon\";\n  }\n  document.getElementById(\"out\").textContent = greeting;\n</script>",
+      "tasks": [
+        {
+          "label": "Add an else if branch",
+          "check": "c => /else\\s+if\\s*\\(/.test(c)"
+        },
+        {
+          "label": "Use === somewhere",
+          "check": "c => /===/.test(c)"
+        },
+        {
+          "label": "Change hour so the message changes",
+          "check": "c => /const\\s+hour\\s*=\\s*(?!9\\b)\\d+/.test(c)"
+        }
+      ]
+    }
+  ]
+}

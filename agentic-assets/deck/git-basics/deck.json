@@ -1,0 +1,127 @@
+{
+  "title": "Git Basics",
+  "template": "../../deck-templates/cyber-lecture",
+  "slides": [
+    {
+      "layout": "cover-centered",
+      "slots": {
+        "title": "Git Basics",
+        "subtitle": "Lecture 5 — Cyber Course",
+        "presenter": "Version control for security work",
+        "date": "2026"
+      }
+    },
+    {
+      "layout": "agenda-list",
+      "slots": {
+        "title": "Today",
+        "items": [
+          { "label": "Why Git matters for security work" },
+          { "label": "Core concepts: repo, staging, commits" },
+          { "label": "Git architecture: local, remote, .git" },
+          { "label": "Essential commands" },
+          { "label": "Branching" },
+          { "label": "Merging & conflicts" },
+          { "label": "Remotes & collaboration" },
+          { "label": ".gitignore & secrets hygiene" },
+          { "label": "Common pitfalls" },
+          { "label": "Cheat sheet & exercise" }
+        ]
+      }
+    },
+    {
+      "layout": "content-single-column",
+      "slots": {
+        "kicker": "Why Git",
+        "title": "Why Git matters for security work",
+        "body": { "html": "<ul><li>Track every change to exploit code, PoCs, and tool configs — reproducibility matters when a technique needs to be re-run or re-audited</li><li>Roll back a broken payload or config instantly instead of hand-restoring</li><li>Collaborate on CTF writeups and internal tooling without emailing zip files</li><li>Full history = an audit trail: who changed what, when, and why</li><li>Every exercise and lab in this course is submitted via Git</li></ul>" }
+      }
+    },
+    {
+      "layout": "content-single-column",
+      "slots": {
+        "kicker": "Core concepts",
+        "title": "The three trees",
+        "body": { "html": "<ul><li><strong>Working directory</strong> — the files you're actually editing</li><li><strong>Staging area (index)</strong> — a holding area for changes you're about to commit</li><li><strong>Repository (.git)</strong> — the committed history, stored as snapshots</li></ul><p>A commit moves a snapshot of the staged files from the staging area into the repository, permanently.</p>" }
+      }
+    },
+    {
+      "layout": "content-single-column",
+      "slots": {
+        "kicker": "Architecture",
+        "title": "Local vs. remote, snapshots not diffs",
+        "body": { "html": "<ul><li>Every clone is a <strong>full copy</strong> of the repository — history included, no server round-trip needed to inspect it</li><li>The <code>.git/</code> folder holds the entire database: objects, refs, config</li><li>Git stores each commit as a <strong>snapshot</strong> of the whole tree (not a diff) — deleted/unchanged files are just re-referenced, so this is cheap</li><li>A <strong>remote</strong> (e.g. <code>origin</code>) is just another repository you sync with — GitHub/GitLab are remotes, not \"the real thing\"</li></ul>" }
+      }
+    },
+    {
+      "layout": "content-single-column",
+      "slots": {
+        "kicker": "Commands",
+        "title": "Essential commands",
+        "body": { "html": "<pre><code>git init                # create a new repo\ngit clone &lt;url&gt;        # copy an existing repo\ngit status               # what changed?\ngit add &lt;file&gt;          # stage changes\ngit commit -m \"msg\"      # snapshot staged changes\ngit log --oneline        # view history</code></pre>" }
+      }
+    },
+    {
+      "layout": "content-single-column",
+      "slots": {
+        "kicker": "Branching",
+        "title": "Branches: isolate your work",
+        "body": { "html": "<pre><code>git branch                    # list branches\ngit branch &lt;name&gt;            # create a branch\ngit switch &lt;name&gt;            # move to it\ngit switch -c &lt;name&gt;         # create + switch</code></pre><p>Branch per exercise, per tool, per exploit variant — never develop directly on <code>main</code>. A broken branch never breaks the working version.</p>" }
+      }
+    },
+    {
+      "layout": "content-single-column",
+      "slots": {
+        "kicker": "Merging",
+        "title": "Merging branches",
+        "body": { "html": "<pre><code>git switch main\ngit merge &lt;branch&gt;</code></pre><ul><li><strong>Fast-forward</strong> — main hasn't moved, Git just slides the pointer forward</li><li><strong>Merge commit</strong> — both branches moved, Git creates a commit with two parents</li><li><strong>Conflict</strong> — same lines changed on both sides; Git marks <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; / ======= / &gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> in the file for you to resolve by hand, then <code>git add</code> + <code>git commit</code></li></ul>" }
+      }
+    },
+    {
+      "layout": "content-single-column",
+      "slots": {
+        "kicker": "Collaboration",
+        "title": "Remotes: push, pull, fetch",
+        "body": { "html": "<pre><code>git remote -v                 # list remotes\ngit push origin &lt;branch&gt;\ngit fetch origin              # download, don't merge\ngit pull origin &lt;branch&gt;      # fetch + merge</code></pre><p><code>origin</code> is your remote; <code>upstream</code> is convention for the original repo you forked from.</p>" }
+      }
+    },
+    {
+      "layout": "content-single-column",
+      "slots": {
+        "kicker": "Secrets hygiene",
+        "title": ".gitignore — never commit secrets",
+        "body": { "html": "<pre><code># .gitignore\n.env\n*.pem\n*.key\ncredentials.json\nid_rsa*</code></pre><p>Anything matched here is never staged, never committed. In security work this is non-negotiable: API keys, private keys, target credentials, and client data must <strong>never</strong> enter Git history.</p>" }
+      }
+    },
+    {
+      "layout": "content-single-column",
+      "slots": {
+        "kicker": "Pitfalls",
+        "title": "Common (and dangerous) mistakes",
+        "body": { "html": "<ul><li>Committing a secret <strong>before</strong> adding it to <code>.gitignore</code> — the file is already in history, ignoring it now does nothing</li><li>History exposure — a public repo's full commit history is downloadable, including anything ever committed and later \"deleted\"</li><li>Removing a leaked secret requires rewriting history (<code>git filter-repo</code> / BFG) and <strong>rotating the credential</strong> — assume it's compromised the moment it's pushed</li><li>Force-pushing over shared branches, wiping teammates' work</li></ul>" }
+      }
+    },
+    {
+      "layout": "metrics-grid",
+      "slots": {
+        "title": "Cheat sheet",
+        "items": [
+          { "metric-value": "init / clone", "metric-label": "start a repo" },
+          { "metric-value": "status / add / commit", "metric-label": "save changes" },
+          { "metric-value": "branch / switch", "metric-label": "isolate work" },
+          { "metric-value": "merge", "metric-label": "combine work" },
+          { "metric-value": "push / pull / fetch", "metric-label": "sync with remote" },
+          { "metric-value": ".gitignore", "metric-label": "keep secrets out" }
+        ]
+      }
+    },
+    {
+      "layout": "closing-centered",
+      "slots": {
+        "title": "Hands-on next",
+        "subtitle": "Exercise 01 — git-basics-exercise",
+        "contact": "lectures/05-git-basics/exercises"
+      }
+    }
+  ]
+}

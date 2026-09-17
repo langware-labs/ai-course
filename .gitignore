@@ -1,0 +1,7 @@
+# macOS finder junk
+.DS_Store
+
+# NOTE: `.flow/` is deliberately NOT ignored. Those capsules carry the identity
+# of the assets in this course (the deck, the agent). Ignore them and every
+# student's copy mints fresh ids for the same files, so the course they receive
+# is no longer the course that was shared.
