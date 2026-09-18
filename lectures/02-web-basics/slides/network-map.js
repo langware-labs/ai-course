@@ -407,24 +407,33 @@
     const a = current(), step = a && a.steps[state.step];
     const active = new Set(), lines = new Set();
     if (step) flatHops(step).forEach(([f, t]) => { active.add(f); active.add(t); lines.add([f, t].sort().join('|')); });
-    Object.entries(nodes).forEach(([id, { g }]) => g.to({ opacity: !step || active.has(id) ? 1 : 0.3, duration: 0.25 }));
+    Object.entries(nodes).forEach(([id, { g }]) => tween(g, { opacity: !step || active.has(id) ? 1 : 0.3, duration: 0.25 }));
     edges.forEach(e => {
       const on = lines.has(e.key);
       e.line.stroke(on ? '#9C7B57' : LINE); e.line.strokeWidth(on ? 3 : 2); e.line.dash(on ? [] : [2, 7]);
-      e.line.to({ opacity: !step || on ? 1 : 0.5, duration: 0.25 });
+      tween(e.line, { opacity: !step || on ? 1 : 0.5, duration: 0.25 });
     });
+  }
+
+  /* Every tween goes through here. A scene rebuild (picking another app, or
+   * going home) destroys the nodes an in-flight animation still holds, and
+   * Konva throws "Tween constructor have `node` that is not in a layer" the
+   * moment one of those fires — usually the SECOND half of a two-step bump. */
+  function tween(node, cfg) {
+    if (!node || !node.getLayer()) return;
+    node.to(cfg);
   }
 
   function bump(g) {
     if (REDUCED) return;
-    g.to({ scaleX: 1.07, scaleY: 1.07, duration: 0.12, onFinish: () => g.to({ scaleX: 1, scaleY: 1, duration: 0.18 }) });
+    tween(g, { scaleX: 1.07, scaleY: 1.07, duration: 0.12, onFinish: () => tween(g, { scaleX: 1, scaleY: 1, duration: 0.18 }) });
   }
 
   function showBadge([id, text, color], animate) {
     const b = nodes[id] && nodes[id].badge;
     if (!b) return;
     b.getText().text(text); b.getText().fill(color); b.visible(true);
-    if (animate && !REDUCED) { b.scale({ x: 0.3, y: 0.3 }); b.to({ scaleX: 1, scaleY: 1, duration: 0.35, easing: Konva.Easings.BackEaseOut }); }
+    if (animate && !REDUCED) { b.scale({ x: 0.3, y: 0.3 }); tween(b, { scaleX: 1, scaleY: 1, duration: 0.35, easing: Konva.Easings.BackEaseOut }); }
     layer.batchDraw();
   }
   // Badges show what the earlier steps reached (the ticks so far).
@@ -485,8 +494,9 @@
     const n = nodes[id];
     if (!n || REDUCED) return token === playToken;
     for (let i = 0; i < 2; i++) {
-      await new Promise(r => n.base.to({ stroke: '#7A4FB8', strokeWidth: 6, duration: 0.16,
-        onFinish: () => n.base.to({ stroke: '#FBF3E7', strokeWidth: 2, duration: 0.16, onFinish: r }) }));
+      if (!n.base.getLayer()) return false;
+      await new Promise(r => tween(n.base, { stroke: '#7A4FB8', strokeWidth: 6, duration: 0.16,
+        onFinish: () => { if (!n.base.getLayer()) return r(); tween(n.base, { stroke: '#FBF3E7', strokeWidth: 2, duration: 0.16, onFinish: r }); } }));
     }
     return token === playToken;
   }
