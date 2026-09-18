@@ -13,7 +13,7 @@
 (function () {
   'use strict';
 
-  const INK = '#1E1814', LINE = '#D9C6A8', REQ = '#E4572E', RES = '#1F8A83';
+  const INK = '#1E1814', LINE = '#D9C6A8', REQ = '#E4572E', RES = '#1F8A83', PUSH = '#7A4FB8';
   const ROLE = { client: { color: '#E4572E', label: 'לקוח' }, server: { color: '#1F8A83', label: 'שרת' }, both: { color: '#7A4FB8', label: 'גם וגם' } };
   const LOGO = slug => `https://cdn.jsdelivr.net/npm/simple-icons@13/icons/${slug}.svg`;
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -48,8 +48,10 @@
    *   leftwards, the way Hebrew reads. copies: drawn as a stack — the same server
    *   running as many copies. role: shown in the tooltip and the roles view.
    * steps: one card each. hops play in order; an array of hops plays together.
-   *   A hop is [from, to, 'req'|'res', label]. pick: a load balancer choosing one
-   *   copy before forwarding. badge: a status chip left on a node (WhatsApp ticks).
+   *   A hop is [from, to, 'req'|'res'|'push', label] — `push` is the one a nobody
+   *   asked for (a notification waking a phone), drawn in its own colour so it
+   *   cannot be read as an answer. pick: a load balancer choosing one copy before
+   *   forwarding. badge: a status chip left on a node (WhatsApp ticks).
    */
   const APPS = [];
   const app = def => APPS.push(def);
@@ -112,8 +114,8 @@
         text: 'הטלפון שלכם (<b class="r-client">לקוח</b>) נועל את ההודעה בהצפנה ושולח אותה ל<b class="r-server">שרת</b>. רק הטלפון של נועה יכול לפתוח את המנעול — גם WhatsApp לא יכולה לקרוא.' },
       { title: '✓ אחד: השרת קיבל', hops: [['wa', 'you', 'res', 'קיבלתי']], badge: ['you', '✓', '#8E8E8E'],
         text: 'השרת עונה "קיבלתי", ומופיע <b>✓ אחד אפור</b>. המשמעות: ההודעה אצל השרת, אבל עוד לא אצל נועה.' },
-      { title: 'נועה לא מחוברת — מעירים את הטלפון', hops: [['wa', 'push', 'req', 'תעירו את נועה'], ['push', 'friend', 'res', '🔔 הודעה חדשה']],
-        text: 'הטלפון של נועה בכיס, והאפליקציה סגורה. השרת שומר את ההודעה, והופך ל<b class="r-client">לקוח</b> של שירות ההתראות של Apple או Google: "תעירו את הטלפון שלה".' },
+      { title: 'נועה לא מחוברת — מעירים את הטלפון', hops: [['wa', 'push', 'req', 'תעירו את נועה'], ['push', 'friend', 'push', '🔔 הודעה חדשה']],
+        text: 'הטלפון של נועה בכיס, והאפליקציה סגורה. השרת שומר את ההודעה, והופך ל<b class="r-client">לקוח</b> של שירות ההתראות של Apple או Google: "תעירו את הטלפון שלה". שימו לב לחץ הסגול: ההתראה מגיעה לטלפון <b>בלי שהוא ביקש כלום</b> — זו לא תשובה לבקשה.' },
       { title: 'הטלפון של נועה מבקש את ההודעה', hops: [['friend', 'wa', 'req', 'יש לי הודעות?'], ['wa', 'friend', 'res', '🔒 ההודעה']],
         text: 'גם הטלפון של נועה הוא <b class="r-client">לקוח</b>: הוא פונה לשרת ומוריד את ההודעה, ורק בו פותחים את המנעול. אחרי שההודעה נמסרה, השרת מוחק אותה.' },
       { title: '✓✓ אפורים: נמסר', hops: [['friend', 'wa', 'req', 'נמסר'], ['wa', 'you', 'res', 'נמסר']], badge: ['you', '✓✓', '#8E8E8E'],
@@ -193,7 +195,7 @@
         text: 'שרת התמונות הופך ל<b class="r-client">לקוח</b> של אחסון התמונות, מביא עותק, ושומר אותו אצלו בשביל הבא בתור.' },
       { title: 'עושים לייק', hops: [['you', 'edge', 'req', '❤️ לייק'], ['edge', 'app', 'req', 'לייק'], ['app', 'db', 'req', 'שמרו לייק'], ['db', 'app', 'res', 'נשמר ✓'], ['app', 'edge', 'res', '✓'], ['edge', 'you', 'res', '✓']],
         text: 'הלייק נשמר במסד הנתונים, ומשם מועתק למקומות נוספים בעולם. ככה גם אם חוות שרתים אחת נופלת — הלייק שלכם לא הולך לאיבוד.' },
-      { title: 'מעלים תמונה חדשה', hops: [['you', 'edge', 'req', '📷 פוסט חדש'], ['edge', 'app', 'req', 'פוסט'], ['app', 'store', 'req', 'שמרו בכמה גדלים'], ['store', 'app', 'res', 'נשמר'], ['app', 'you', 'res', 'פורסם ✓'], ['app', 'jobs', 'req', 'ספרו לעוקבים'], ['jobs', 'push', 'req', '🔔 תודיעו לנועה']],
+      { title: 'מעלים תמונה חדשה', hops: [['you', 'edge', 'req', '📷 פוסט חדש'], ['edge', 'app', 'req', 'פוסט'], ['app', 'store', 'req', 'שמרו בכמה גדלים'], ['store', 'app', 'res', 'נשמר'], ['app', 'edge', 'res', 'פורסם ✓'], ['edge', 'you', 'res', 'פורסם ✓'], ['app', 'jobs', 'req', 'ספרו לעוקבים'], ['jobs', 'push', 'req', '🔔 תודיעו לנועה']],
         text: 'התמונה נשמרת בכמה גדלים — לטלפון קטן, למסך גדול, לאינטרנט איטי. ואחר כך, ברקע, עובדי הרקע (<b class="r-both">גם וגם</b>) מפיצים את הפוסט לעוקבים ומבקשים משירות ההתראות להודיע להם.' }
     ],
     fact: 'כמעט כל שרת כאן היה <b class="r-both">גם וגם</b> — שרת למי שפונה אליו, ולקוח של מישהו אחר. וואו: ב-2011 כל Instagram רצה על כ-25 שרתי אפליקציה שכורים. היום היא רצה בחוות השרתים של Meta, ומדרגת לכל משתמש מאות פוסטים בכל פעם שהוא פותח את הפיד.'
@@ -257,7 +259,7 @@
     return {
       example: a.id, step: state.step + 1, steps: a.steps.length + 1, title: step ? step.title : 'מה למדנו',
       // The summary card has no hops — an empty list, not a sentinel string.
-      hops: step ? flatHops(step).map(([f, t, k, l]) => ({ from: label(f), to: label(t), kind: k === 'req' ? 'request' : 'response', label: l })) : []
+      hops: step ? flatHops(step).map(([f, t, k, l]) => ({ from: label(f), to: label(t), kind: k === 'req' ? 'request' : k === 'push' ? 'push (nobody asked)' : 'response', label: l })) : []
     };
   }
 
@@ -435,7 +437,7 @@
   function packet([from, to, kind, label], token) {
     return new Promise(resolve => {
       if (!nodes[from] || !nodes[to]) return resolve(true);
-      const color = kind === 'req' ? REQ : RES;
+      const color = kind === 'req' ? REQ : kind === 'push' ? PUSH : RES;
       const a = nodes[from].g.position(), b = nodes[to].g.position();
       const g = new Konva.Group({ x: a.x, y: a.y, listening: false, name: 'packet' });
       g.add(new Konva.Circle({ radius: 7, fill: color, shadowColor: color, shadowBlur: 14, shadowOpacity: 0.9 }));
