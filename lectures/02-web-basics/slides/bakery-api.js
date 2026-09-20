@@ -1,10 +1,11 @@
 /* The bakery — ONE server, for every step that talks to one.
  *
- * The lab (step 7) lets the student build requests by hand; the module (step 8)
- * has them write the fetch code. Both aim at https://bakery.flowpad.test, so
- * both must get the same answers: when the menu is in Hebrew on one screen and
- * English on the next, or an order is `{item, qty}` here and `{item_id,
- * quantity}` there, the student is right to think they broke something.
+ * The simulator (step 8) lets the student build requests by hand; the reading
+ * exercises (step 9) have them answer out of what came back. Both aim at
+ * https://bakery.flowpad.test, so both must get the same answers: when the menu
+ * is in Hebrew on one screen and English on the next, or an order is `{item,
+ * qty}` here and `{item_id, quantity}` there, the student is right to think
+ * they broke something.
  *
  * It answers like a real server — a status, headers and a JSON body — and its
  * errors say what to fix. Nothing here touches the network.

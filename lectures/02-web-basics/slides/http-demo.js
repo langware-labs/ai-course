@@ -10,8 +10,9 @@
  *    arrived, and it is drawn on the same wire. The requests this page itself
  *    made to load the player come from the browser's Resource Timing list.
  *
- * Needs #httpWire, #httpInspect, #httpModes, #httpPlay, #liveWire, #liveLog,
- * #liveStats, #liveState, #ytPlayer. Call window.__httpDemo.show()/hide().
+ * Needs #httpWire, #httpInspect, #httpModes, #httpPlay, #liveLog,
+ * #liveStats, #liveState, #ytPlayer. Call window.__httpDemo.show(stepId) /
+ * hide(stepId) — 'http-live' drives the player, 'http' the anatomy demo.
  */
 (function () {
   'use strict';
@@ -107,8 +108,10 @@
           pill.style.left = b;
           await sleep(900);
         } else {
-          const anim = pill.animate([{ left: a, opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.88 }, { left: b, opacity: 0 }],
-            { duration: 1500, easing: 'cubic-bezier(.45,.05,.35,1)', fill: 'forwards' });
+          const anim = pill.animate([{ left: a, opacity: 0 }, { opacity: 1, offset: 0.08 }, { opacity: 1, offset: 0.92 }, { left: b, opacity: 0 }],
+            // Slow on purpose: the label IS the lesson, and it has to be readable
+            // while it crosses.
+            { duration: 3200, easing: 'cubic-bezier(.35,.05,.25,1)', fill: 'forwards' });
           await anim.finished.catch(() => {});
         }
         pill.remove();
@@ -198,6 +201,7 @@
       `<code dir="ltr" class="rq">${esc(req || '')}</code><code dir="ltr" class="rs">${esc(res || '')}</code>`;
     const log = $('liveLog');
     log.prepend(row);
+    log.scrollTop = 0;
     while (log.children.length > 9) log.lastChild.remove();
   }
   function renderLive() {
@@ -207,7 +211,9 @@
   }
   // Serialize live packets so they fly one after the other, like the demo.
   function livePacket(req, res) {
-    const w = wire($('liveWire'));
+    const el = $('liveWire');
+    if (!el) return;            // the video slide shows the log alone
+    const w = wire(el);
     live.queue = live.queue.then(async () => {
       await w.send({ from: 'client', text: req, kind: 'req' });
       await w.send({ from: 'server', text: res, kind: 'res' });
@@ -336,14 +342,21 @@
 
   let wired = false;
   window.__httpDemo = {
-    show() {
+    /** The two halves live on two slides now: `http-live` is the real player,
+     *  `http` the anatomy demo. Starting the half nobody is looking at would
+     *  animate an off-screen section and download video nobody watches. */
+    show(which) {
       if (!$('httpWire')) return;
       if (!wired) { wireUi(); wired = true; renderModes(); renderLive(); }
+      if (which === 'http-live') return startLive();
       if (demo.playing) runDemo();
-      startLive();
     },
-    hide() {
+    hide(which) {
       demo.token++;
+      // Leaving the anatomy slide: stop its loop, but the player belongs to the
+      // other slide — pausing it here would stop a video the student is watching
+      // after stepping back.
+      if (which === 'http') return;
       // Everything this slide started has to stop here. The buffer poll is the
       // one that bites: a paused video keeps buffering, so a poll left running
       // goes on drawing packets onto an invisible wire — and queueing them —
