@@ -866,7 +866,10 @@ function render() {
       const s = STEPS[n];
       const cls = ['step', 'k-' + s.kind, n === current ? 'on' : '', seen[n] && n !== current ? 'seen' : ''].join(' ');
       const kind = { module: 'תרגילים', app: 'אפליקציה', slide: 'שקף' }[s.kind];
-      return '<button class="' + cls + '" data-n="' + n + '" title="' + (n + 1) + '. ' + s.title + ' · ' + kind + '">' + '<b class="num">' + (n + 1) + '</b>' + ICONS[s.kind] + '<span>' + s.short + '</span></button>';
+      // Inside a module the chip names the exercise, so a student landing here knows where they are.
+      const mod = n === current && s.kind === 'module' ? moduleNav() : null;
+      const label = mod ? 'תרגיל ' + (mod.index() + 1) + ' מתוך ' + mod.count : s.short;
+      return '<button class="' + cls + '" data-n="' + n + '" title="' + (n + 1) + '. ' + s.title + ' · ' + kind + '">' + '<b class="num">' + (n + 1) + '</b>' + ICONS[s.kind] + '<span>' + label + '</span></button>';
     }).join('') + '</div>'
   ).join('');
   document.querySelectorAll('.slide').forEach(el => el.classList.toggle('on', el.dataset.step === STEPS[current].id));
