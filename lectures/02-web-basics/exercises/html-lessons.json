@@ -1,9 +1,10 @@
 {
   "source": "slides/html-module.html",
-  "storage_key": "handmade-web-v1",
+  "storage_key": "handmade-web-v2",
   "lessons": [
     {
       "index": 0,
+      "bonus": false,
       "kicker": "Lesson 01 · HTML",
       "title": "A page is a stack of tags",
       "file": "index.html",
@@ -27,6 +28,7 @@
     },
     {
       "index": 1,
+      "bonus": false,
       "kicker": "Lesson 02 · HTML",
       "title": "Text that carries emphasis",
       "file": "text.html",
@@ -45,15 +47,12 @@
         {
           "label": "Wrap another word in <em>",
           "check": "c => /<em>[\\s\\S]+<\\/em>/i.test(c)"
-        },
-        {
-          "label": "Add an <h2> between the h1 and the h3",
-          "check": "c => /<h2[\\s>][\\s\\S]*<\\/h2>/i.test(c)"
         }
       ]
     },
     {
       "index": 2,
+      "bonus": false,
       "kicker": "Lesson 03 · HTML",
       "title": "Links and images use attributes",
       "file": "links.html",
@@ -72,43 +71,13 @@
         {
           "label": "Give the image different alt text",
           "check": "c => /alt\\s*=\\s*[\"'][^\"']+[\"']/i.test(c) && !/alt\\s*=\\s*[\"']A grey placeholder[\"']/i.test(c)"
-        },
-        {
-          "label": "Make the link open in a new tab with target=\"_blank\"",
-          "check": "c => /<a\\s[^>]*target\\s*=\\s*[\"']_blank[\"']/i.test(c)"
         }
       ]
     },
     {
       "index": 3,
-      "kicker": "Lesson 04 · HTML",
-      "title": "Lists and tables hold sets",
-      "file": "lists.html",
-      "blurb": "When content comes in a set, say so. An unordered list is <ul> with <li> children; a numbered one is <ol>. Tables use rows of <tr> holding <th> headers and <td> cells.",
-      "notes": [
-        "Only <li> belongs directly inside <ul> or <ol>.",
-        "A table row lives in <tr>; cells go inside it.",
-        "Use a table for real tabular data, never for page layout."
-      ],
-      "starter_code": "<h2>Shopping</h2>\n<ul>\n  <li>Flour</li>\n  <li>Salt</li>\n</ul>",
-      "tasks": [
-        {
-          "label": "Add a third <li> to the list",
-          "check": "c => (c.match(/<li[\\s>]/gi) || []).length >= 3"
-        },
-        {
-          "label": "Add a numbered <ol> list with at least two items",
-          "check": "c => /<ol[\\s>][\\s\\S]*<\\/ol>/i.test(c) && (c.match(/<li[\\s>]/gi) || []).length >= 5"
-        },
-        {
-          "label": "Add a <table> with a header row and a data row",
-          "check": "c => /<table[\\s>][\\s\\S]*<\\/table>/i.test(c) && /<th[\\s>]/i.test(c) && /<td[\\s>]/i.test(c)"
-        }
-      ]
-    },
-    {
-      "index": 4,
-      "kicker": "Lesson 05 · CSS",
+      "bonus": false,
+      "kicker": "Lesson 04 · CSS",
       "title": "CSS paints the markup",
       "file": "style.html",
       "blurb": "CSS rules pick elements and set properties on them. A rule is a selector, then braces holding property and value pairs. Put your rules inside a style tag.",
@@ -126,70 +95,13 @@
         {
           "label": "Set a background on body",
           "check": "c => /body\\s*\\{[^}]*background/i.test(c)"
-        },
-        {
-          "label": "Change any font-size",
-          "check": "c => /font-size\\s*:/i.test(c)"
         }
       ]
     },
     {
-      "index": 5,
-      "kicker": "Lesson 06 · CSS",
-      "title": "Every element is a box",
-      "file": "box.html",
-      "blurb": "Each element occupies a rectangle: content, then padding inside the edge, then a border, then margin pushing neighbours away. Spacing is mostly choosing these four.",
-      "notes": [
-        "padding is space inside the border, margin is space outside it.",
-        "A class targets a group: .card in CSS matches class=\"card\".",
-        "border-radius rounds the corners of the box."
-      ],
-      "starter_code": "<style>\n  .card {\n    background: #f4e9d6;\n    padding: 16px;\n    border: 1px solid #e0d0b7;\n  }\n</style>\n\n<div class=\"card\">\n  <h3>A card</h3>\n  <p>Boxed content.</p>\n</div>",
-      "tasks": [
-        {
-          "label": "Add a margin to .card",
-          "check": "c => /\\.card\\s*\\{[^}]*margin\\s*:/i.test(c)"
-        },
-        {
-          "label": "Round the corners with border-radius",
-          "check": "c => /border-radius\\s*:/i.test(c)"
-        },
-        {
-          "label": "Add a second element using class=\"card\"",
-          "check": "c => (c.match(/class\\s*=\\s*[\"'][^\"']*card/gi) || []).length >= 2"
-        }
-      ]
-    },
-    {
-      "index": 6,
-      "kicker": "Lesson 07 · CSS",
-      "title": "Flexbox arranges children",
-      "file": "flex.html",
-      "blurb": "Set display: flex on a container and its children line up along one axis. gap spaces them, justify-content distributes them along the row, align-items lines them up across it.",
-      "notes": [
-        "flex-direction: column stacks the children instead.",
-        "gap replaces fiddling with margins between items.",
-        "Try justify-content: space-between and see what moves."
-      ],
-      "starter_code": "<style>\n  .row { display: flex; gap: 12px; }\n  .box { background: #211b16; color: #fbf3e7; padding: 20px; }\n</style>\n\n<div class=\"row\">\n  <div class=\"box\">one</div>\n  <div class=\"box\">two</div>\n</div>",
-      "tasks": [
-        {
-          "label": "Add a third .box",
-          "check": "c => (c.match(/class\\s*=\\s*[\"'][^\"']*box/gi) || []).length >= 3"
-        },
-        {
-          "label": "Use justify-content on .row",
-          "check": "c => /justify-content\\s*:/i.test(c)"
-        },
-        {
-          "label": "Use align-items on .row",
-          "check": "c => /align-items\\s*:/i.test(c)"
-        }
-      ]
-    },
-    {
-      "index": 7,
-      "kicker": "Lesson 08 · JavaScript",
+      "index": 4,
+      "bonus": false,
+      "kicker": "Lesson 05 · JavaScript",
       "title": "Variables remember values",
       "file": "vars.html",
       "blurb": "JavaScript runs inside a script tag. A variable is a name holding a value: let for something that changes, const for something fixed. Text in quotes joins together with a plus.",
@@ -205,18 +117,15 @@
           "check": "c => /const\\s+name\\s*=\\s*[\"'](?!friend[\"'])[^\"']+[\"']/i.test(c)"
         },
         {
-          "label": "Declare one more variable",
-          "check": "c => (c.match(/\\b(let|const)\\s+[A-Za-z_$]/g) || []).length >= 3"
-        },
-        {
           "label": "Do some arithmetic, e.g. visits + 1",
           "check": "c => /[A-Za-z_$][\\w$]*\\s*[+\\-*\\/]\\s*\\d/.test(c)"
         }
       ]
     },
     {
-      "index": 8,
-      "kicker": "Lesson 09 · JavaScript",
+      "index": 5,
+      "bonus": false,
+      "kicker": "Lesson 06 · JavaScript",
       "title": "Reaching into the page",
       "file": "dom.html",
       "blurb": "The DOM is your HTML as objects JavaScript can touch. Find an element, then read or change it. Hook a function to an event and it runs when the user acts.",
@@ -234,16 +143,85 @@
         {
           "label": "Add a second button with its own id",
           "check": "c => (c.match(/<button/gi) || []).length >= 2 && (c.match(/id\\s*=\\s*[\"'][^\"']+[\"']/gi) || []).length >= 3"
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "bonus": true,
+      "kicker": "Bonus 01 · HTML",
+      "title": "Lists and tables hold sets",
+      "file": "lists.html",
+      "blurb": "When content comes in a set, say so. An unordered list is <ul> with <li> children; a numbered one is <ol>. Tables use rows of <tr> holding <th> headers and <td> cells.",
+      "notes": [
+        "Only <li> belongs directly inside <ul> or <ol>.",
+        "A table row lives in <tr>; cells go inside it.",
+        "Use a table for real tabular data, never for page layout."
+      ],
+      "starter_code": "<h2>Shopping</h2>\n<ul>\n  <li>Flour</li>\n  <li>Salt</li>\n</ul>",
+      "tasks": [
+        {
+          "label": "Add a third <li> to the list",
+          "check": "c => (c.match(/<li[\\s>]/gi) || []).length >= 3"
         },
         {
-          "label": "Listen for a second event, e.g. mouseover",
-          "check": "c => (c.match(/addEventListener/g) || []).length >= 2"
+          "label": "Add a numbered <ol> list with at least two items",
+          "check": "c => /<ol[\\s>][\\s\\S]*<\\/ol>/i.test(c) && (c.match(/<li[\\s>]/gi) || []).length >= 5"
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "bonus": true,
+      "kicker": "Bonus 02 · CSS",
+      "title": "Every element is a box",
+      "file": "box.html",
+      "blurb": "Each element occupies a rectangle: content, then padding inside the edge, then a border, then margin pushing neighbours away. Spacing is mostly choosing these four.",
+      "notes": [
+        "padding is space inside the border, margin is space outside it.",
+        "A class targets a group: .card in CSS matches class=\"card\".",
+        "border-radius rounds the corners of the box."
+      ],
+      "starter_code": "<style>\n  .card {\n    background: #f4e9d6;\n    padding: 16px;\n    border: 1px solid #e0d0b7;\n  }\n</style>\n\n<div class=\"card\">\n  <h3>A card</h3>\n  <p>Boxed content.</p>\n</div>",
+      "tasks": [
+        {
+          "label": "Add a margin to .card",
+          "check": "c => /\\.card\\s*\\{[^}]*margin\\s*:/i.test(c)"
+        },
+        {
+          "label": "Round the corners with border-radius",
+          "check": "c => /border-radius\\s*:/i.test(c)"
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "bonus": true,
+      "kicker": "Bonus 03 · CSS",
+      "title": "Flexbox arranges children",
+      "file": "flex.html",
+      "blurb": "Set display: flex on a container and its children line up along one axis. gap spaces them, justify-content distributes them along the row, align-items lines them up across it.",
+      "notes": [
+        "flex-direction: column stacks the children instead.",
+        "gap replaces fiddling with margins between items.",
+        "Try justify-content: space-between and see what moves."
+      ],
+      "starter_code": "<style>\n  .row { display: flex; gap: 12px; }\n  .box { background: #211b16; color: #fbf3e7; padding: 20px; }\n</style>\n\n<div class=\"row\">\n  <div class=\"box\">one</div>\n  <div class=\"box\">two</div>\n</div>",
+      "tasks": [
+        {
+          "label": "Add a third .box",
+          "check": "c => (c.match(/class\\s*=\\s*[\"'][^\"']*box/gi) || []).length >= 3"
+        },
+        {
+          "label": "Use justify-content on .row",
+          "check": "c => /justify-content\\s*:/i.test(c)"
         }
       ]
     },
     {
       "index": 9,
-      "kicker": "Lesson 10 · JavaScript",
+      "bonus": true,
+      "kicker": "Bonus 04 · JavaScript",
       "title": "Choosing between paths",
       "file": "logic.html",
       "blurb": "An if statement runs a block only when a condition is true, and else covers the rest. Compare with === for equality, or with > and < for size. This is where a page starts making decisions.",
@@ -257,10 +235,6 @@
         {
           "label": "Add an else if branch",
           "check": "c => /else\\s+if\\s*\\(/.test(c)"
-        },
-        {
-          "label": "Use === somewhere",
-          "check": "c => /===/.test(c)"
         },
         {
           "label": "Change hour so the message changes",

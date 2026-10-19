@@ -117,6 +117,7 @@
       nudge: 'צריך גם לשלוח את ההזמנה באמת (3 יחידות של הקרואסון), וגם להעתיק את <code dir="ltr">order_id</code> מהתשובה.'
     },
     {
+      bonus: true,
       q: 'העלו תמונה של העוגה שאתם רוצים. <b>באיזה שם השרת שמר אותה?</b>',
       how: 'לחצו על <b>🖼️ העלאת תמונה</b>, בחרו תמונה מהמחשב ושלחו. השם נמצא בתשובה, בשדה <code dir="ltr">saved_as</code>.',
       todo: 'להעלות תמונה ולקרוא את השם שהשרת נתן לה',
@@ -124,6 +125,7 @@
       nudge: 'השרת לא שומר את השם שלכם — הוא נותן שם משלו. העתיקו בדיוק את מה שכתוב ב-<code dir="ltr">saved_as</code>.'
     },
     {
+      bonus: true,
       q: 'מלאו ושלחו את טופס ההזמנה. <b>באיזו שעה השרת קיבל אותו?</b> (שעה:דקה)',
       how: 'לחצו על <b>📝 טופס הזמנה</b>, מלאו לפחות שם ושעת איסוף, ושלחו. חפשו בתשובה את <code dir="ltr">submitted_at</code>.',
       todo: 'לשלוח את הטופס ולקרוא את שעת הקבלה',
@@ -131,6 +133,7 @@
       nudge: 'ב-<code dir="ltr">submitted_at</code> יש תאריך ואחריו האות T. השעה היא מה שבא אחריה — שעה:דקה.'
     },
     {
+      bonus: true,
       q: 'הקליטו הודעה קולית ושלחו. <b>כמה שניות היא אורכת</b> לפי השרת?',
       how: 'לחצו על <b>🎤 הקלטה</b>, הקליטו, שלחו — ואפשר גם להאזין למה שנשמר. המספר נמצא בשדה <code dir="ltr">seconds</code>.',
       todo: 'להקליט, לשלוח, ולקרוא את אורך ההקלטה',
@@ -402,9 +405,12 @@
   // Same furniture a module lesson has: kicker, title, a To-do row, Check my work.
   function renderTasks() {
     const t = TASKS[state.task], solved = state.solved.includes(state.task);
-    $('labKicker').textContent = `Exercise ${String(state.task + 1).padStart(2, '0')} · Reading answers`;
-    $('labTaskNav').innerHTML = TASKS.map((_, i) =>
-      `<button class="lab-task-n${i === state.task ? ' on' : ''}${state.solved.includes(i) ? ' done' : ''}" data-task="${i}">${state.solved.includes(i) ? '✓' : i + 1}</button>`).join('');
+    $('labKicker').textContent = t.bonus
+      ? `Bonus ${String(state.task + 1 - MAIN).padStart(2, '0')} · Reading answers`
+      : `Exercise ${String(state.task + 1).padStart(2, '0')} · Reading answers`;
+    $('labBonus').hidden = !t.bonus;
+    $('labTaskNav').innerHTML = TASKS.map((x, i) =>
+      `<button class="lab-task-n${i === state.task ? ' on' : ''}${state.solved.includes(i) ? ' done' : ''}${x.bonus ? ' bonus' : ''}${i === MAIN ? ' bonus-first' : ''}" data-task="${i}" title="${x.bonus ? 'בונוס' : 'תרגיל ' + (i + 1)}">${state.solved.includes(i) ? '✓' : x.bonus ? '★' : i + 1}</button>`).join('');
     $('labTaskQ').innerHTML = t.q;
     $('labTaskHow').innerHTML = '<b>איך מוצאים:</b> ' + t.how;
     $('labTaskRow').className = 'lab-task-row' + (solved ? ' pass' : '');
@@ -419,6 +425,7 @@
     count.classList.toggle('all', state.solved.length === TASKS.length);
   }
   state.answers = {};
+  const MAIN = TASKS.filter(t => !t.bonus).length;
 
   function checkTask() {
     const t = TASKS[state.task], a = $('labAnswer').value;
@@ -429,6 +436,8 @@
       state.answers[state.task] = a;
       renderTasks();
       save();
+      const finishedMain = !t.bonus && TASKS.every((x, i) => x.bonus || state.solved.includes(i));
+      if (window.__celebrate) window.__celebrate(t.bonus ? 'פתרתם תרגיל בונוס ⭐' : finishedMain ? 'סיימתם את כל התרגילים!' : 'תרגיל ' + (state.task + 1) + ' מאחוריכם');
       const next = TASKS.findIndex((_, i) => !state.solved.includes(i));
       if (next >= 0) setTimeout(() => { state.task = next; renderTasks(); }, 1400);
     } else {
@@ -461,7 +470,7 @@
     return {
       sent: state.count, building: { method: state.method, path: state.path }, last: state.last,
       action: state.action,
-      tasks: { current: state.task + 1, total: TASKS.length, solved: state.solved.length, question: TASKS[state.task].q.replace(/<[^>]+>/g, '') }
+      tasks: { current: state.task + 1, total: TASKS.length, main: MAIN, bonus: !!TASKS[state.task].bonus, solved: state.solved.length, question: TASKS[state.task].q.replace(/<[^>]+>/g, '') }
     };
   }
 

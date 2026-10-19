@@ -445,6 +445,10 @@
   .lab-task-n:hover { border-color: var(--ink-3); }
   .lab-task-n.done { background: var(--ok-bg); border-color: #B9CDAE; color: #3F5B36; }
   .lab-task-n.on { background: var(--teal); border-color: var(--teal); color: #fff; }
+  .lab-task-n.bonus:not(.on):not(.done) { border-style: dashed; border-color: #E8A33D; color: #B07A1E; }
+  .lab-task-n.bonus-first { margin-inline-start: 12px; }
+  .lab-bonus { display: inline-block; margin: 0 0 10px; padding: 5px 12px; border-radius: 999px; background: #FDF1DC; border: 1px dashed #E8A33D; color: #8A5A12; font-size: 13.5px; font-weight: 600; }
+  .lab-bonus[hidden] { display: none; }
   .lab-explain { margin-right: auto; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; font-family: var(--he); font-size: 12.5px; font-weight: 600;
                  padding: 5px 11px; border-radius: 999px; border: 1px solid #C9D9D6; background: var(--teal-bg); color: var(--teal); cursor: pointer; }
   .lab-explain:hover { background: var(--teal); color: #F3FAF8; border-color: var(--teal); }
@@ -772,6 +776,7 @@
             <div class="lab-task-nav" id="labTaskNav"></div>
             <button class="lab-explain" id="labExplain" title="נטי מסבירה על מה התרגיל הזה">🧑‍🏫 נטי מסבירה</button>
           </div>
+          <div class="lab-bonus" id="labBonus" hidden>⭐ בונוס · תרגיל רשות למי שרוצה עוד</div>
           <h2 class="lab-title" id="labTaskQ"></h2>
           <div class="lab-todo">
             <div class="lab-todo-head"><span class="label">To do</span><span class="lab-todo-count" id="labTaskCount"></span></div>
@@ -811,6 +816,7 @@
 <script defer src="http-demo.js"></script>
 <script defer src="bakery-api.js"></script>
 <script defer src="http-lab.js"></script>
+<script defer src="celebrate.js"></script>
 <script>
 const LECTURE = '02-web-basics';
 const STEPS = [
@@ -868,7 +874,9 @@ function render() {
       const kind = { module: 'תרגילים', app: 'אפליקציה', slide: 'שקף' }[s.kind];
       // Inside a module the chip names the exercise, so a student landing here knows where they are.
       const mod = n === current && s.kind === 'module' ? moduleNav() : null;
-      const label = mod ? 'תרגיל ' + (mod.index() + 1) + ' מתוך ' + mod.count : s.short;
+      const label = !mod ? s.short
+        : mod.isBonus && mod.isBonus(mod.index()) ? '⭐ בונוס ' + (mod.index() + 1 - mod.main) + ' מתוך ' + (mod.count - mod.main)
+        : 'תרגיל ' + (mod.index() + 1) + ' מתוך ' + (mod.main || mod.count);
       return '<button class="' + cls + '" data-n="' + n + '" title="' + (n + 1) + '. ' + s.title + ' · ' + kind + '">' + '<b class="num">' + (n + 1) + '</b>' + ICONS[s.kind] + '<span>' + label + '</span></button>';
     }).join('') + '</div>'
   ).join('');
@@ -964,7 +972,7 @@ document.addEventListener('keydown', e => {
 
 /* Restart: everything the course remembers lives in this browser's storage —
  * the lecture's step and each module's code and progress (same origin). */
-const COURSE_STORES = [STORE, 'handmade-web-v1', 'http-lab-v1'];
+const COURSE_STORES = [STORE, 'handmade-web-v2', 'http-lab-v1'];
 function restartCourse() {
   document.querySelectorAll('.module-frame').forEach(f => f.remove()); // unmount first, so nothing re-saves
   COURSE_STORES.forEach(key => { try { localStorage.removeItem(key); } catch (e) {} });
