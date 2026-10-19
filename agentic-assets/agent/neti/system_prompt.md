@@ -63,7 +63,7 @@ lectures/<lecture>/
 
 **כשהתלמיד בתוך מודול** (שלב 4 — מודול HTML), המצב כולל:
 - `module` — `html`.
-- `lesson` — `number` (מ-1), `title`, `bonus` (האם זה תרגיל בונוס), `file`, ו-`tasks`: לכל משימה `label` ו-`passed` (`true` עברה, `false` נכשלה בבדיקה האחרונה, `null` = לא נבדק מאז העריכה האחרונה).
+- `lesson` — `number` (מ-1), `title`, `bonus` (האם זה תרגיל בונוס), `file`, ו-`tasks`: לכל משימה `label` ו-`passed` (`true` עברה, `false` נכשלה בבדיקה האחרונה, `null` = עוד לא נבדק בשיעור הזה). התוצאה היא של הבדיקה האחרונה ונשארת עד הבדיקה הבאה — גם אם הקוד השתנה מאז; לכן תמיד השווי ל-`code`).
 - `code` — הקוד שהתלמיד כתב כרגע בשיעור הזה, בדיוק כפי שהוא.
 - `main_lessons` (6) ו-`bonus_lessons` (4).
 - `checked`, `check_attempts_this_lesson`, `failed_checks_in_a_row`, `lessons_completed`.

@@ -87,12 +87,42 @@
   /* ── Exercises: every answer is read off the server's own reply ──────────── */
   const norm = t => String(t).trim().toLowerCase().replace(/["'.,]/g, ' ').replace(/\s+/g, ' ');
   const has = (t, w) => norm(t).includes(norm(w));
+  /* Answers forgive typos: the point is that the student found the value in the
+   * reply, not that they copied it letter for letter. */
+  const compact = t => String(t).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+  function lev(a, b) {
+    let row = Array.from({ length: b.length + 1 }, (_, j) => j);
+    for (let i = 1; i <= a.length; i++) {
+      const next = [i];
+      for (let j = 1; j <= b.length; j++) next[j] = Math.min(row[j] + 1, next[j - 1] + 1, row[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      row = next;
+    }
+    return row[b.length];
+  }
+  const slack = w => Math.max(1, Math.floor(w.length / 4));        // ~1 typo per 4 letters
+  const near = (a, target) => { const x = compact(a), y = compact(target); return !!x && lev(x, y) <= slack(y); };
+  // A word somewhere in the answer, misspelt, with a suffix ("croisants", "קרואסונים")
+  // or a Hebrew prefix letter ("וקינמון").
+  const mentions = (a, w) => {
+    const words = norm(a).split(' ').filter(Boolean), y = compact(w);
+    const joined = words.concat(words.slice(1).map((x, i) => words[i] + x)).map(compact);
+    const cands = joined.concat(joined.map(c => c.replace(/^[והבלמש]/, '')));
+    return cands.some(c => lev(c, y) <= slack(y) || lev(c.slice(0, y.length), y) <= slack(y));
+  };
+  // Any hh:mm in the answer (14:05, 14.05, 1405, 2:05) within two minutes of the real one.
+  const nearTime = (a, hm) => {
+    const want = +hm.slice(0, 2) * 60 + +hm.slice(3, 5);
+    return [...String(a).matchAll(/(\d{1,2})\s*[:.\-h ]?\s*(\d{2})/g)].some(m => {
+      const got = +m[1] * 60 + +m[2];
+      return [0, 720, -720].some(s => Math.abs(got + s - want) <= 2);
+    });
+  };
   const TASKS = [
     {
       q: 'אילו <b>מאפים</b> (pastry) יש בתפריט של המאפייה? כתבו את שניהם.',
       how: 'שלחו <code dir="ltr">GET /menu</code> וחפשו בתשובה את השדה <code dir="ltr">type</code> — או בקשו ישר <code dir="ltr">/menu?type=pastry</code>.',
       todo: 'לשלוח בקשה לתפריט ולמצוא את שני המאפים',
-      check: a => (has(a, 'croissant') || has(a, 'קרואסון')) && (has(a, 'cinnamon') || has(a, 'קינמון')),
+      check: a => (mentions(a, 'croissant') || mentions(a, 'קרואסון')) && (mentions(a, 'cinnamon') || mentions(a, 'קינמון')),
       nudge: 'שני מוצרים בתפריט מסומנים <code dir="ltr">"type": "pastry"</code>. מה ה-<code dir="ltr">name</code> שלהם?'
     },
     {
@@ -113,7 +143,7 @@
       q: 'הזמינו <b>3 קרואסונים</b> — ורשמו את מספר ההזמנה שהשרת יצר.',
       how: 'בחרו <code dir="ltr">POST</code>, כתובת <code dir="ltr">/orders</code>, ובגוף הבקשה <code dir="ltr">item_id</code> ו-<code dir="ltr">quantity</code>. את ה-<code dir="ltr">item_id</code> תמצאו בתפריט.',
       todo: 'לשלוח הזמנה אמיתית ולרשום את מספר ההזמנה',
-      check: a => orders().some(o => has(o.item, 'croissant') && o.quantity === 3 && norm(o.order_id) === norm(a)),
+      check: a => orders().some(o => has(o.item, 'croissant') && o.quantity === 3 && (near(a, o.order_id) || near(a, o.order_id.replace(/^[A-Z]+-/, '')))),
       nudge: 'צריך גם לשלוח את ההזמנה באמת (3 יחידות של הקרואסון), וגם להעתיק את <code dir="ltr">order_id</code> מהתשובה.'
     },
     {
@@ -121,15 +151,15 @@
       q: 'העלו תמונה של העוגה שאתם רוצים. <b>באיזה שם השרת שמר אותה?</b>',
       how: 'לחצו על <b>🖼️ העלאת תמונה</b>, בחרו תמונה מהמחשב ושלחו. השם נמצא בתשובה, בשדה <code dir="ltr">saved_as</code>.',
       todo: 'להעלות תמונה ולקרוא את השם שהשרת נתן לה',
-      check: a => saved.uploads.some(u => norm(u.saved_as) === norm(a)),
-      nudge: 'השרת לא שומר את השם שלכם — הוא נותן שם משלו. העתיקו בדיוק את מה שכתוב ב-<code dir="ltr">saved_as</code>.'
+      check: a => saved.uploads.some(u => near(a, u.saved_as) || near(a, u.saved_as.replace(/\.\w+$/, ''))),
+      nudge: 'השרת לא שומר את השם שלכם — הוא נותן שם משלו. העתיקו את מה שכתוב ב-<code dir="ltr">saved_as</code>.'
     },
     {
       bonus: true,
       q: 'מלאו ושלחו את טופס ההזמנה. <b>באיזו שעה השרת קיבל אותו?</b> (שעה:דקה)',
       how: 'לחצו על <b>📝 טופס הזמנה</b>, מלאו לפחות שם ושעת איסוף, ושלחו. חפשו בתשובה את <code dir="ltr">submitted_at</code>.',
       todo: 'לשלוח את הטופס ולקרוא את שעת הקבלה',
-      check: a => saved.messages.some(m => { const hm = m.submitted_at.slice(11, 16); return norm(a).includes(norm(hm)); }),
+      check: a => saved.messages.some(m => nearTime(a, m.submitted_at.slice(11, 16))),
       nudge: 'ב-<code dir="ltr">submitted_at</code> יש תאריך ואחריו האות T. השעה היא מה שבא אחריה — שעה:דקה.'
     },
     {
@@ -137,7 +167,7 @@
       q: 'הקליטו הודעה קולית ושלחו. <b>כמה שניות היא אורכת</b> לפי השרת?',
       how: 'לחצו על <b>🎤 הקלטה</b>, הקליטו, שלחו — ואפשר גם להאזין למה שנשמר. המספר נמצא בשדה <code dir="ltr">seconds</code>.',
       todo: 'להקליט, לשלוח, ולקרוא את אורך ההקלטה',
-      check: a => { const n = parseFloat(String(a).replace(',', '.')); return !isNaN(n) && saved.notes.some(v => Math.abs(v.seconds - n) <= 0.6); },
+      check: a => { const n = parseFloat(String(a).replace(',', '.')); return !isNaN(n) && saved.notes.some(v => Math.abs(v.seconds - n) <= 1); },
       nudge: 'קראו את <code dir="ltr">seconds</code> בתשובה של השרת — הוא מודד את מה שבאמת הגיע אליו.'
     }
   ];
