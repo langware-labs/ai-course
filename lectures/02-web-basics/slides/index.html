@@ -58,6 +58,8 @@
   .shell { height: 100vh; display: grid; grid-template-rows: auto 1fr; overflow: hidden; }
   .topbar { border-bottom: 1px solid var(--line); background: var(--paper); }
   .bar { height: 64px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 24px; padding: 0 22px; }
+  /* Flowpad floats its Share button over the top-right corner; keep the title clear of it. */
+  .bar { padding-right: 116px; }
 
   /* Sub-menu: shown only inside a module — the module's exercises, nested under its step. */
   .brand { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
@@ -439,14 +441,16 @@
   .lab-tasks { background: var(--paper-2); border: 1px solid var(--line); border-radius: 6px; padding: 20px 22px 18px; margin-bottom: 18px; }
   .lab-kicker-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
   .lab-kicker { font-family: var(--mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--teal); white-space: nowrap; }
-  .lab-task-nav { display: flex; gap: 5px; }
+  .lab-task-nav { display: flex; gap: 5px; align-items: flex-end; }
   .lab-task-n { min-width: 28px; height: 28px; border-radius: 6px; border: 1px solid #D8C7AE; background: var(--paper); color: var(--ink-3);
                 font-family: var(--mono); font-size: 12px; font-weight: 700; cursor: pointer; }
   .lab-task-n:hover { border-color: var(--ink-3); }
   .lab-task-n.done { background: var(--ok-bg); border-color: #B9CDAE; color: #3F5B36; }
   .lab-task-n.on { background: var(--teal); border-color: var(--teal); color: #fff; }
   .lab-task-n.bonus:not(.on):not(.done) { border-style: dashed; border-color: #E8A33D; color: #B07A1E; }
-  .lab-task-n.bonus-first { margin-inline-start: 12px; }
+  .lab-bonus-group { display: flex; flex-direction: column; align-items: center; gap: 3px; margin-inline-start: 12px; }
+  .lab-bonus-cap { font-size: 12px; font-weight: 700; color: #8A5A12; line-height: 16px; }
+  .lab-bonus-btns { display: flex; gap: 5px; }
   .lab-bonus { display: inline-block; margin: 0 0 10px; padding: 5px 12px; border-radius: 999px; background: #FDF1DC; border: 1px dashed #E8A33D; color: #8A5A12; font-size: 13.5px; font-weight: 600; }
   .lab-bonus[hidden] { display: none; }
   .lab-explain { margin-right: auto; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; font-family: var(--he); font-size: 12.5px; font-weight: 600;
@@ -482,7 +486,7 @@
   @media (max-width: 1100px) {
     .restart span { display: none; }
     .restart { padding: 0 7px; }
-    .bar { gap: 14px; padding: 0 16px; }
+    .bar { gap: 14px; padding: 0 16px; padding-right: 116px; }
     .step { padding: 0 7px; gap: 5px; }
     .part-cap { padding: 0 2px 0 4px; }
   }

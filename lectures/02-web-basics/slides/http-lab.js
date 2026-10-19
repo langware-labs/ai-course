@@ -439,8 +439,11 @@
       ? `Bonus ${String(state.task + 1 - MAIN).padStart(2, '0')} · Reading answers`
       : `Exercise ${String(state.task + 1).padStart(2, '0')} · Reading answers`;
     $('labBonus').hidden = !t.bonus;
-    $('labTaskNav').innerHTML = TASKS.map((x, i) =>
-      `<button class="lab-task-n${i === state.task ? ' on' : ''}${state.solved.includes(i) ? ' done' : ''}${x.bonus ? ' bonus' : ''}${i === MAIN ? ' bonus-first' : ''}" data-task="${i}" title="${x.bonus ? 'בונוס' : 'תרגיל ' + (i + 1)}">${state.solved.includes(i) ? '✓' : x.bonus ? '★' : i + 1}</button>`).join('');
+    const navBtn = (x, i) =>
+      `<button class="lab-task-n${i === state.task ? ' on' : ''}${state.solved.includes(i) ? ' done' : ''}${x.bonus ? ' bonus' : ''}" data-task="${i}" title="${x.bonus ? 'בונוס' : 'תרגיל ' + (i + 1)}">${state.solved.includes(i) ? '✓' : x.bonus ? '★' : i + 1}</button>`;
+    // The bonus stars sit in their own group, captioned "בונוס".
+    $('labTaskNav').innerHTML = TASKS.map((x, i) => x.bonus ? '' : navBtn(x, i)).join('') +
+      `<span class="lab-bonus-group"><span class="lab-bonus-cap">בונוס</span><span class="lab-bonus-btns">${TASKS.map((x, i) => x.bonus ? navBtn(x, i) : '').join('')}</span></span>`;
     $('labTaskQ').innerHTML = t.q;
     $('labTaskHow').innerHTML = '<b>איך מוצאים:</b> ' + t.how;
     $('labTaskRow').className = 'lab-task-row' + (solved ? ' pass' : '');
