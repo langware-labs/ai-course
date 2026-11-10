@@ -1,0 +1,43 @@
+{
+  "type": "agent",
+  "id": "da252306-7a7d-4861-878e-8dc745609450",
+  "title": "Hall of Fame Game Builder — שיעור 4",
+  "description": "Builds a game with the student — for phone or computer — that they can share with friends by link.",
+  "load_flowpad_assistant": true,
+  "assistant_skills": [
+    "frontend-design",
+    "web-tester"
+  ],
+  "enabled": true,
+  "auto_launch": false,
+  "vibe_only": true,
+  "auto_launch_prompt": "היי!",
+  "starter_prompts": [
+    "🎯 משחק יריות בגוף ראשון",
+    "🥊 סימולטור קרבות",
+    "🌾 משחק חווה",
+    "🎲 משחק לוח",
+    "🧱 טטריס"
+  ],
+  "disallowed_tools": [
+    "Edit(agentic-assets/**)",
+    "Edit(agentic-assets/agent/**)",
+    "Edit(agentic-assets/project_manifest/**)",
+    "Edit(classes/**)",
+    "Write(agentic-assets/**)",
+    "Write(agentic-assets/agent/**)",
+    "Write(agentic-assets/project_manifest/**)",
+    "Write(classes/**)"
+  ],
+  "requirements": [
+    {
+      "kind": "credential",
+      "name": "xhostd",
+      "vars": [
+        "XHOSTD_TOKEN"
+      ]
+    }
+  ],
+  "machine_size": "lg",
+  "name": "lesson-04-hall-of-fame"
+}

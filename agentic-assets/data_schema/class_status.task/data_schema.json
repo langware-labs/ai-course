@@ -1,0 +1,24 @@
+{
+  "type": "data_schema",
+  "id": "5d775376-927d-40d0-85dc-bb22c4ce46d8",
+  "name": "class_status.task",
+  "description": "One task of the lesson and how far this student got with it.",
+  "fields": {
+    "name": {
+      "shape": "string",
+      "description": "The task, in a few words (Build game, Restart button, Phone layout, Publish)."
+    },
+    "status": {
+      "shape": "enum:done|in_progress|stuck|not_started",
+      "description": "Where the student is on this task."
+    },
+    "evidence": {
+      "shape": "string",
+      "description": "What on the machine shows it: a file, a line in the chat, a check that ran."
+    },
+    "issue": {
+      "shape": "?string",
+      "description": "What blocks the student, in one sentence; empty when nothing does."
+    }
+  }
+}

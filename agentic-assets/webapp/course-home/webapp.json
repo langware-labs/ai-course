@@ -1,0 +1,6 @@
+{
+  "name": "course-home",
+  "title": "הקורס",
+  "description": "Course home: a card per lesson, each opens its agent.",
+  "build": "."
+}

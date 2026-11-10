@@ -1,0 +1,189 @@
+---
+name: hall-of-fame
+description: 'Gives a student''s game a Hall of Fame — a table of the best scores of
+  everyone who plays it from the shared link — by setting up the student''s own server
+  and database on xhostd, then wiring the game to them (ask for the player''s name at
+  game over, send the score, show the top 10). Use when the student wants a score
+  table, a leaderboard, a Hall of Fame or "to compete with friends", or asks what a
+  server or a database is. NOT for real-time multiplayer.'
+allowed-tools:
+- Read
+- Write
+- Edit
+- Bash
+- Glob
+- Grep
+---
+
+# Hall of Fame
+
+The student's game gets **its own server and its own database** on xhostd. One link
+shows the game and keeps its table. Teach it as you build it: the game (a page in the
+browser) *sends* a score to the server, the server *stores* it in the database, and
+every player's browser *asks* for the top 10. Say each of the three in one plain
+sentence at the moment you build it.
+
+## The order
+
+You lead every step; the student does not have to ask for any of them.
+
+1. **Offer it right after the first build** (unless they already asked). Do not ask whether
+   they want changes first, and never suggest changes: a student who wants one asks.
+2. **Wire the game** to the table (see "Wire the game") and test it locally with
+   `web-tester`, including the case where the server is unreachable.
+3. **Ask once more** whether they want to change anything. If not, **upload the code to the
+   repo** (see "Upload the code") — **without running it yet.**
+4. **Run it** (see "Run it"): deploy, then test the live link — play a round, check the score
+   shows in the table, ask the student to open the link on another device.
+5. **Offer the next two things:** that they share the link (it is an app now, so the Share
+   button is enough), and to see their database (see "Showing the student their database").
+
+## The class token
+
+The teacher posts `XHOSTD_TOKEN=...` as a message in a Flowpad conversation. Everyone
+in the class uses the same one.
+
+- **Never print, quote or echo the token** — not in the chat, not in a file you show,
+  not in a command line, not in a commit. Only `scripts/xhostd.py` touches it; it
+  stores it in `.secrets/xhostd_token`, which git ignores.
+- If your Credentials list says `xhostd … available`, the token is already in this machine's
+  environment as `XHOSTD_TOKEN` and `scripts/xhostd.py` uses it — skip `save-token`.
+- Otherwise, first time only: `flow conversation list`, find the conversation with the teacher,
+  then `uv run --no-project python <this-skill>/scripts/xhostd.py save-token <conversation-id>`.
+  It prints only "token saved". If it says there is no such message, ask the student
+  to tell the teacher.
+- Never run `GET` on an app's `env` — it can show secrets.
+
+## Upload the code (step 7 — save it, do not run it yet)
+
+The student's code is saved in a **repo** (git) on xhostd, with its **history of versions**.
+You do it for them: **do not send the student to the "Link to cloud" button or to the
+project page** for this, as an earlier version of this lesson did.
+
+**When to do it:** after the Hall of Fame is wired and tested, ask: "Is there anything else
+you want to change before I save it?" If they want more changes, make them. If not, upload.
+Never suggest ideas of your own for the game; only ask whether *they* want a change.
+
+All calls go through `scripts/xhostd.py`. Read each answer for the ids you need; do not guess
+them. Keep the ids and the app's public address in `.secrets/hof_app.json` (git-ignored), so
+a later update finds them.
+
+1. **First time only — create the app.** Name: `hof-<student's first name in English letters,
+   lowercase>` (e.g. `hof-dana`; add a digit if xhostd says the name is taken). Then
+   `xhostd.py api POST /apps '{"name":"<name>","template":"app","branch":"master"}'`, and keep
+   the app id, the channel id and the git url from the answer. Then
+   `xhostd.py new-admin-secret <app-id>` once (it stays in `.secrets/`, never printed).
+2. **Keep the code in the project, upload from a copy.** The student's source stays in the
+   project: the game in `work/lesson-04/<game>/`, the server in `work/lesson-04/server/` (copy this skill's
+   `assets/server.py`, `install.sh`, `launch.sh` there). Rebuild the git-ignored staging
+   folder `.deploy/<name>/` each time: `work/lesson-04/server/*` at its top, the game's files in `public/`,
+   then `git init` (first time). Never edit the staging copy.
+3. **Commit and push — do not deploy.** Commit with a short message that says what this
+   version is ("First version", "Added sound", …), then
+   `xhostd.py push .deploy/<name> <git url>`.
+4. **Tell the student**, in their language and in plain words: their code is now saved in a
+   **repo in the cloud, with a history of versions**, so it is kept safe. You may call it a
+   **repo** — that word is worth knowing — but never mention GitHub or Langware, and don't
+   promise a link to the files: the student has none. Do NOT offer the
+   student to open the code on another computer; only if they ask, see "Open the code on
+   another computer" (it needs the class token).
+5. Before pushing, make sure no secret is inside a project file (the class token and the
+   passwords must not be): check with `grep -r` for the token's first 6 characters *without
+   printing the match*, and fix the file if it is there.
+
+**Later changes:** when the student changes the game after the first upload, rebuild the
+staging copy, commit with a message for the new version, push, and say: "I created a new
+version of your code in the cloud (the repo) — you now have a history of versions." Then run
+it again if the game is already running (see "Run it").
+
+## Open the code on another computer
+
+Only when the student asks (never offer it yourself) to get their game's code on another computer, or the project is gone:
+this works from the repo, and it needs the **class token** (the teacher posts it as
+`XHOSTD_TOKEN=...` in a Flowpad conversation; save it with `xhostd.py save-token`, never print it).
+
+1. Find the app by its name `hof-<first name>`: `xhostd.py api GET /apps`, then
+   `xhostd.py api GET /apps/<app-id>` for its git url. Only the student's own app: never open
+   another student's.
+2. `xhostd.py clone <git url> .deploy/<name>` — the whole history of versions comes with it.
+3. Copy the pieces back to where the project keeps them: `public/*` into `work/lesson-04/<game>/`, and
+   `server.py`, `install.sh`, `launch.sh` into `work/lesson-04/server/`.
+4. The app's admin secret did not travel (it lives on the first computer): if the student wants
+   to see their scores or clean test rows, run `xhostd.py new-admin-secret <app-id>` again and
+   run it (deploy) once so the app picks it up.
+
+The running game itself needs none of this: it is already published, so its link opens on any
+computer.
+
+## Run it (step 8)
+
+Only after the code is uploaded (or updated):
+
+1. `xhostd.py api POST /apps/<app-id>/channels/<channel-id>/deploy '{"ref":"master"}'`. Wait
+   until the deploy is done (read the answer; check `GET` on the channel again).
+2. **The link:** the public address of the app, from the answers. Give it to the student.
+   **Right away, by yourself, without being asked:** run
+   `xhostd.py share-link work/lesson-04/<game> <the address>`. The game's Share button is hidden until
+   this file exists; the moment it does, the button shows up (a page already open sees it within
+   a few seconds) with every option working (WhatsApp, email, copy link, download). The copy on
+   the app itself needs nothing: a page on its own address shares that address.
+3. Test the live link, as in "The order". Then tell the student the Share button is there now
+   and offer, once, that they send the link on WhatsApp: it is an app now, so there is nothing
+   more to publish.
+
+The student must understand why this is a *different* kind of publishing from the
+`l04-html-builder` publish script: that one only stores files; this one runs a program.
+
+## Wire the game
+
+In `game.js`. The page is also shown inside Flowpad (a `localhost` address), where a relative
+`/api/scores` would reach Flowpad, not the student's server. So use the server's full address
+(from `.secrets/hof_app.json`, `address`) whenever the page is not on `.xhostd.app`; the server
+already allows other origins (CORS):
+
+```js
+const API = location.hostname.endsWith('.xhostd.app') ? '' : '<app address>';
+async function sendScore(name, score) {
+  try {
+    await fetch(API + '/api/scores', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({game: GAME, name, score})});
+  } catch { /* offline: the game still works */ }
+}
+async function topScores() {
+  try { return (await (await fetch(API + '/api/scores?game=' + GAME)).json()).scores; }
+  catch { return null; }   // null = "the table can't be reached"
+}
+```
+
+`GAME` is the game's folder name (lowercase letters, digits, dashes). At game over:
+ask the player's name (remember it in `localStorage`), call `sendScore`, then show
+`topScores()` as a table with the player's own row highlighted; if it returns `null`,
+say the table is unavailable and keep the game playable. Test with `web-tester`, then
+open the page, play a round, and check that the score shows in the table.
+
+## Showing the student their database
+
+Offer this yourself once the app is running: "Want to see what your server saved?" Also do it
+whenever the student asks to see their database, their scores, or "what the server saved":
+run `xhostd.py show-scores <app-address> [game]` and show the rows as a small table
+(time, game, name, score). Explain in two sentences: this is the `scores` table in
+*their* Postgres database; the server adds a row each time a game sends a score, and
+the Hall of Fame is the ten highest rows. Read-only: never change or delete the
+student's rows without being asked. This uses the app's own admin secret, so it can only
+see this student's app — never use the class token to read a database or another
+student's app.
+
+## Test rows — clean up after yourself
+
+When you test the table, use a clearly fake player name, `__test__`. The moment the
+test is done (pass or fail), delete it from the live table:
+`xhostd.py delete-scores <app-address> <game> __test__`, then read the table again
+and make sure no `__test__` row is left. A test row must never stay in the student's Hall
+of Fame. If the delete fails, tell the student plainly and tell the teacher.
+
+## Rules
+
+- The student's name and score are the only data. No passwords, accounts or emails.
+- Anyone with the link can send a fake score. Say so once, honestly — it is a good
+  question for the student to think about — and don't try to prevent it here.
+- Do not touch another student's app. Only create and change the one named after this student.

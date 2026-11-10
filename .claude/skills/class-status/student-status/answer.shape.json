@@ -1,0 +1,190 @@
+{
+ "type": "object",
+ "required": [
+  "tasks",
+  "needs_help",
+  "summary",
+  "machine",
+  "games",
+  "timeline",
+  "stats"
+ ],
+ "properties": {
+  "tasks": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "name",
+     "status",
+     "evidence"
+    ],
+    "properties": {
+     "name": {
+      "type": "string"
+     },
+     "status": {
+      "enum": [
+       "done",
+       "in_progress",
+       "stuck",
+       "not_started"
+      ]
+     },
+     "evidence": {
+      "type": "string",
+      "maxLength": 120
+     },
+     "issue": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "maxLength": 80
+     }
+    }
+   }
+  },
+  "needs_help": {
+   "type": "boolean"
+  },
+  "summary": {
+   "type": "string",
+   "maxLength": 200
+  },
+  "machine": {
+   "type": "object",
+   "properties": {
+    "size": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "memory_gb": {
+     "type": [
+      "number",
+      "null"
+     ]
+    },
+    "flowpad_version": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "project_created": {
+     "type": [
+      "string",
+      "null"
+     ]
+    }
+   }
+  },
+  "games": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "name",
+     "files"
+    ],
+    "properties": {
+     "name": {
+      "type": "string"
+     },
+     "share_url": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "files": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "path": {
+         "type": "string"
+        },
+        "modified": {
+         "type": "string"
+        },
+        "bytes": {
+         "type": [
+          "number",
+          "null"
+         ]
+        }
+       }
+      },
+      "maxItems": 6
+     }
+    }
+   }
+  },
+  "timeline": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "ts",
+     "who",
+     "what"
+    ],
+    "properties": {
+     "ts": {
+      "type": "string"
+     },
+     "who": {
+      "enum": [
+       "student",
+       "agent"
+      ]
+     },
+     "what": {
+      "type": "string",
+      "maxLength": 70
+     },
+     "kind": {
+      "enum": [
+       "event",
+       "error",
+       "waiting"
+      ]
+     }
+    }
+   },
+   "maxItems": 12
+  },
+  "stats": {
+   "type": "object",
+   "properties": {
+    "student_messages": {
+     "type": [
+      "number",
+      "null"
+     ]
+    },
+    "first_activity": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "last_activity": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "minutes_to_first_game": {
+     "type": [
+      "number",
+      "null"
+     ]
+    }
+   }
+  }
+ }
+}

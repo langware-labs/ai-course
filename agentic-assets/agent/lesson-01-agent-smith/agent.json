@@ -1,0 +1,17 @@
+{
+  "type": "agent",
+  "id": "beff05cd-f096-4da4-a845-f17e5254845b",
+  "name": "lesson-01-agent-smith",
+  "version": 7,
+  "title": "Agent Smith — שיעור 1",
+  "description": "Builds the app you describe as a single beautiful HTML page you can open right now.",
+  "avatar": "./avatar.png",
+  "worker_type": "claude",
+  "model": "sm",
+  "permission_mode": "bypassPermissions",
+  "load_flowpad_assistant": true,
+  "enabled": true,
+  "auto_launch_prompt": "היי!",
+  "intro": "",
+  "auto_launch": false
+}

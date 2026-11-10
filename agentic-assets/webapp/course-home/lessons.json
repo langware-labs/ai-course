@@ -1,0 +1,26 @@
+[
+  {
+    "id": "lectures",
+    "title": "נטי — הרצאות הקורס",
+    "subtitle": "מושגי AI, יסודות ה-web, git",
+    "agent": "agent-9c989cdd-d8c6-4b6a-a9f8-cdd094a8260c"
+  },
+  {
+    "id": "lesson-01",
+    "title": "שיעור 1 — Agent Smith",
+    "subtitle": "בונים אפליקציה בדף HTML אחד",
+    "agent": "agent-beff05cd-f096-4da4-a845-f17e5254845b"
+  },
+  {
+    "id": "lesson-03",
+    "title": "שיעור 3 — בונה המשחקים",
+    "subtitle": "משחק שמשתפים עם חברים",
+    "agent": "agent-68e8bf06-09e2-4220-9f62-42ff5defe2e4"
+  },
+  {
+    "id": "lesson-04",
+    "title": "שיעור 4 — היכל התהילה",
+    "subtitle": "משחק עם טבלת שיאים לכל הכיתה",
+    "agent": "agent-da252306-7a7d-4861-878e-8dc745609450"
+  }
+]

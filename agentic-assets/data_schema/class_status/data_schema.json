@@ -1,0 +1,22 @@
+{
+  "type": "data_schema",
+  "id": "53cabd58-76f9-477b-ab68-2ec0f7f45039",
+  "name": "class_status",
+  "description": "One student's progress on the lesson, as the class-status skill answers an IT message.",
+  "fields": {
+    "tasks": {
+      "shape": [
+        "class_status.task"
+      ],
+      "description": "Every task of the lesson, in lesson order."
+    },
+    "needs_help": {
+      "shape": "bool",
+      "description": "True when the student is stuck on something and a teacher should look."
+    },
+    "summary": {
+      "shape": "string",
+      "description": "Two sentences at most, for the teacher."
+    }
+  }
+}
