@@ -10,3 +10,4 @@
 .env*
 .class-status/
 __pycache__/
+.flow/

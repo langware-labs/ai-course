@@ -1,4 +1,5 @@
 ---
+id: 66015f70-c65f-4147-856b-eb3f64dca39c
 name: class-status
 description: The teacher's class report for lesson 4. Checks every student machine
   of the Game Builder agent over an IT message (the student-status sub-skill runs

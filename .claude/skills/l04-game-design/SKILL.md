@@ -1,13 +1,14 @@
 ---
+id: a55d8e51-298a-4b12-bd75-b8e94ef22de0
 name: l04-l04-game-design
 description: How to make a browser game that is fun, feels good and runs smoothly
   on a phone (portrait, touch) or a computer (keyboard and mouse), as static HTML/CSS/JS
-  with no libraries. Covers the game loop, scaling the canvas, controls
-  for touch and keyboard, the screens every game needs, "juice" (feedback that makes
-  actions feel good), difficulty, saving the high score, and recipes for a first-person
-  shooter, a fight simulator, a farm sim, a board game and Tetris. Use together with
-  `l04-html-builder` (which owns the files, the look and the share button) whenever the
-  thing being built is a game.
+  with no libraries. Covers the game loop, scaling the canvas, controls for touch
+  and keyboard, the screens every game needs, "juice" (feedback that makes actions
+  feel good), difficulty, saving the high score, and recipes for a first-person shooter,
+  a fight simulator, a farm sim, a board game and Tetris. Use together with `l04-html-builder`
+  (which owns the files, the look and the share button) whenever the thing being built
+  is a game.
 allowed-tools:
 - Read
 - Write

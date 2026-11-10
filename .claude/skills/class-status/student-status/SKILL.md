@@ -1,10 +1,12 @@
 ---
+id: 11d73889-15c0-4c1d-9125-331f9eb15354
 name: student-status
 description: One student's lesson-4 status, checked ON the student's own machine.
   The teacher sends this file in an IT message (the class-status skill does it for
   every machine); the machine answers how far the student got, what the machine is,
   which game files exist, and a timestamped timeline of the Game Builder chat — all
-  in short English (the teacher's side translates), in the shape of answer.shape.json (sent as the IT message's answer shape). Read only.
+  in short English (the teacher's side translates), in the shape of answer.shape.json
+  (sent as the IT message's answer shape). Read only.
 allowed-tools:
 - Read
 - Bash

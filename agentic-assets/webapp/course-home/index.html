@@ -25,16 +25,21 @@
   <p class="msg" id="msg"></p>
 </main>
 <script type="module">
-  // The project this app belongs to: from the SDK when the page is served by Flowpad.
-  async function projectId() {
-    try {
+  // Served by Flowpad: the SDK knows this app's project and can open an agent's chat in it,
+  // the same way Flowpad's own agent tiles do (reopen the last chat, else start one).
+  // Loaded on the first click, never before the cards are drawn (on a cold page the SDK may still be starting).
+  let ready = null;
+  function flowpad() {
+    ready ??= (async () => {
       const sdk = await import('/sdk/flowpad-sdk.js');
-      const host = await sdk.resolveAppHost?.();
-      return host?.app?.project_id || null;
-    } catch { return null; }
+      const pid = (await sdk.resolveAppHost())?.app?.project_id;
+      if (!pid) throw new Error('no project');
+      return { sdk, pid };
+    })().catch((e) => { ready = null; throw e; });
+    return ready;
   }
+  const msg = document.getElementById('msg');
   const lessons = await (await fetch('./lessons.json')).json();
-  const pid = await projectId();
   const grid = document.getElementById('lessons');
   for (const l of lessons) {
     const card = document.createElement('div');
@@ -42,16 +47,21 @@
     card.innerHTML = `<h2></h2><p></p><button>התחילו</button>`;
     card.querySelector('h2').textContent = l.title;
     card.querySelector('p').textContent = l.subtitle;
-    card.querySelector('button').addEventListener('click', () => {
-      const agentId = l.agent.replace(/^agent-/, '');
-      const params = new URLSearchParams({ action: 'launch', agent: agentId });
-      if (pid) params.set('target_local', pid); else params.set('target_local', 'pick');
-      // Flowpad's own launch path: the host opens the agent's chat in this project.
-      window.parent.postMessage({ type: 'flowpad:navigate', address: `/dock/home?${params}` }, '*');
+    const btn = card.querySelector('button');
+    btn.addEventListener('click', async () => {
+      btn.disabled = true; btn.textContent = 'פותח…';
+      try {
+        const { sdk, pid } = await flowpad();
+        const agent = await sdk.Agent.getById(l.agent.replace(/^agent-/, ''));
+        const chat = await agent.openChat(pid);
+        window.parent.postMessage({ type: 'flowpad:navigate', address: `/dock/vibe/agentic_process-${chat.id}` }, '*');
+      } catch (e) {
+        msg.textContent = 'לא הצלחנו לפתוח את השיעור. נסו שוב.';
+        console.error('[course-home] open lesson failed', e);
+      } finally { btn.disabled = false; btn.textContent = 'התחילו'; }
     });
     grid.appendChild(card);
   }
-  if (window.parent === window) document.getElementById('msg').textContent = 'פתחו את הדף הזה בתוך Flowpad כדי להפעיל שיעור.';
 </script>
 </body>
 </html>

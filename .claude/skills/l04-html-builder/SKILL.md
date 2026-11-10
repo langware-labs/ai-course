@@ -1,14 +1,16 @@
 ---
+id: fe861ef6-a6d8-46d8-b039-3a29d46150c1
 name: l04-l04-html-builder
 description: 'Builds a static web page or browser app — HTML, CSS and JavaScript files
-  a browser opens directly, with no build step or install — that
-  looks designed and carries a share button in a corner (WhatsApp, email, copy link,
-  download), and publishes it to a free public link with no sign-up. Use for any page made from plain files: a game, a quiz,
-  a poster, a small site, a tool, an interactive toy. Covers the folder layout, modern
-  CSS and JavaScript without a framework, phone (portrait) versus computer layouts,
-  the share button and publishing, saving with localStorage or a server and database, the accessibility floor and how to verify
-  the result. Aesthetic direction comes from `frontend-design`, which this skill loads
-  first. NOT for anything that needs accounts or a build step.'
+  a browser opens directly, with no build step or install — that looks designed and
+  carries a share button in a corner (WhatsApp, email, copy link, download), and publishes
+  it to a free public link with no sign-up. Use for any page made from plain files:
+  a game, a quiz, a poster, a small site, a tool, an interactive toy. Covers the folder
+  layout, modern CSS and JavaScript without a framework, phone (portrait) versus computer
+  layouts, the share button and publishing, saving with localStorage or a server and
+  database, the accessibility floor and how to verify the result. Aesthetic direction
+  comes from `frontend-design`, which this skill loads first. NOT for anything that
+  needs accounts or a build step.'
 allowed-tools:
 - Read
 - Write

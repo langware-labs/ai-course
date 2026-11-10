@@ -1,4 +1,5 @@
 ---
+id: 2dc4a0a6-a2cd-4950-bdc0-4dd227827009
 name: l03-l03-game-design
 description: How to make a browser game that is fun, feels good and runs smoothly
   on a phone (portrait, touch) or a computer (keyboard and mouse), as static HTML/CSS/JS
@@ -6,8 +7,8 @@ description: How to make a browser game that is fun, feels good and runs smoothl
   for touch and keyboard, the screens every game needs, "juice" (feedback that makes
   actions feel good), difficulty, saving the high score, and recipes for a first-person
   shooter, a fight simulator, a farm sim, a board game and Tetris. Use together with
-  `l03-html-builder` (which owns the files, the look and the share button) whenever the
-  thing being built is a game.
+  `l03-html-builder` (which owns the files, the look and the share button) whenever
+  the thing being built is a game.
 allowed-tools:
 - Read
 - Write

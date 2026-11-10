@@ -1,14 +1,16 @@
 ---
+id: ef305071-04ae-483a-bbde-33c1cb8c0772
 name: l03-l03-html-builder
 description: 'Builds a static web page or browser app — HTML, CSS and JavaScript files
   a browser opens directly, with no server, database, build step or install — that
   looks designed and carries a share button in a corner (WhatsApp, email, copy link,
-  download), and publishes it to a free public link with no sign-up. Use for any page made from plain files: a game, a quiz,
-  a poster, a small site, a tool, an interactive toy. Covers the folder layout, modern
-  CSS and JavaScript without a framework, phone (portrait) versus computer layouts,
-  the share button and publishing, saving with localStorage, the accessibility floor and how to verify
-  the result. Aesthetic direction comes from `frontend-design`, which this skill loads
-  first. NOT for anything that needs a server, a database, accounts or a build step.'
+  download), and publishes it to a free public link with no sign-up. Use for any page
+  made from plain files: a game, a quiz, a poster, a small site, a tool, an interactive
+  toy. Covers the folder layout, modern CSS and JavaScript without a framework, phone
+  (portrait) versus computer layouts, the share button and publishing, saving with
+  localStorage, the accessibility floor and how to verify the result. Aesthetic direction
+  comes from `frontend-design`, which this skill loads first. NOT for anything that
+  needs a server, a database, accounts or a build step.'
 allowed-tools:
 - Read
 - Write

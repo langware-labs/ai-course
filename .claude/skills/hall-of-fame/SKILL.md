@@ -1,11 +1,12 @@
 ---
+id: 71c3d142-8ca4-4363-9759-e51364620ff2
 name: hall-of-fame
-description: 'Gives a student''s game a Hall of Fame — a table of the best scores of
-  everyone who plays it from the shared link — by setting up the student''s own server
-  and database on xhostd, then wiring the game to them (ask for the player''s name at
-  game over, send the score, show the top 10). Use when the student wants a score
-  table, a leaderboard, a Hall of Fame or "to compete with friends", or asks what a
-  server or a database is. NOT for real-time multiplayer.'
+description: Gives a student's game a Hall of Fame — a table of the best scores of
+  everyone who plays it from the shared link — by setting up the student's own server
+  and database on xhostd, then wiring the game to them (ask for the player's name
+  at game over, send the score, show the top 10). Use when the student wants a score
+  table, a leaderboard, a Hall of Fame or "to compete with friends", or asks what
+  a server or a database is. NOT for real-time multiplayer.
 allowed-tools:
 - Read
 - Write
