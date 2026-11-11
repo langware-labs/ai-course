@@ -13,5 +13,6 @@
   "enabled": true,
   "auto_launch_prompt": "היי!",
   "intro": "",
-  "auto_launch": false
+  "auto_launch": false,
+  "machine_size": "sm"
 }
