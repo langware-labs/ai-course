@@ -11,3 +11,4 @@
 .class-status/
 __pycache__/
 .flow/
+local/
