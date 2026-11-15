@@ -5,24 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>הקורס</title>
 <style>
-  :root { --bg:#fff; --fg:#0f172a; --muted:#64748b; --card:#f8fafc; --border:#e2e8f0; --accent:#4f46e5; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#0b1020; --fg:#e2e8f0; --muted:#94a3b8; --card:#111827; --border:#1f2937; --accent:#818cf8; } }
+  :root { --bg:#fff; --fg:#0f172a; --muted:#64748b; --card:#f8fafc; --border:#e2e8f0; --accent:#4f46e5; --on-accent:#fff; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0b1020; --fg:#e2e8f0; --muted:#94a3b8; --card:#111827; --border:#1f2937; --accent:#818cf8; --on-accent:#0b1020; } }
   body { margin:0; background:var(--bg); color:var(--fg); font-family:"Segoe UI",Arial,"Noto Sans Hebrew",sans-serif; }
   main { max-width:960px; margin:0 auto; padding:40px 20px; }
   h1 { font-size:28px; margin:0 0 6px; } .sub { color:var(--muted); margin:0 0 28px; }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
   .card { border:1px solid var(--border); background:var(--card); border-radius:14px; padding:18px; display:flex; flex-direction:column; gap:8px; }
-  .card h2 { font-size:18px; margin:0; } .card p { color:var(--muted); margin:0; flex:1; }
-  button { align-self:flex-start; border:0; border-radius:10px; padding:9px 18px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; font-size:15px; }
+  .num { color:var(--accent); font-size:13px; font-weight:700; }
+  .card h2 { font-size:18px; margin:0; flex:1; }
+  .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .btn { box-sizing:border-box; min-height:40px; display:inline-flex; align-items:center; border:1px solid var(--accent); border-radius:10px; padding:8px 16px; font:inherit; font-weight:600; font-size:15px; cursor:pointer; text-decoration:none; }
+  .btn.lesson { background:var(--accent); color:var(--on-accent); }
+  .btn.secondary { background:transparent; color:var(--accent); }
+  .btn:disabled { opacity:.6; cursor:default; }
+  .btn:focus-visible { outline:2px solid var(--fg); outline-offset:2px; }
   .msg { color:var(--muted); font-size:13px; margin-top:18px; }
 </style>
 </head>
 <body>
 <main>
   <h1>הקורס</h1>
-  <p class="sub">בחרו שיעור. כל שיעור נפתח עם הסוכן שלו, והעבודה שלכם נשמרת בתיקייה של השיעור.</p>
+  <p class="sub">בחרו שיעור: אפשר לפתוח את מצגת השיעור, את דף העבודה, או את הסוכן שבונה איתכם.</p>
   <div class="grid" id="lessons"></div>
-  <p class="msg" id="msg"></p>
+  <p class="msg" id="msg" role="status"></p>
 </main>
 <script type="module">
   // Served by Flowpad: the SDK knows this app's project and can open an agent's chat in it,
@@ -38,28 +44,45 @@
     })().catch((e) => { ready = null; throw e; });
     return ready;
   }
+  const AGENT_LABEL = 'לפתיחת הסוכן';
+  // One way to build every card action: a link (opens in a new tab) when given an href, else a button
+  // (disabled unless the caller wires a click).
+  function action(tag, kind, label, href) {
+    const el = document.createElement(tag);
+    el.className = `btn ${kind}`; el.textContent = label;
+    if (href) { el.href = href; el.target = '_blank'; el.rel = 'noopener'; }
+    else { el.type = 'button'; if (kind === 'lesson') el.disabled = true; }
+    return el;
+  }
   const msg = document.getElementById('msg');
   const lessons = await (await fetch('./lessons.json')).json();
   const grid = document.getElementById('lessons');
   for (const l of lessons) {
     const card = document.createElement('div');
     card.className = 'card';
-    card.innerHTML = `<h2></h2><p></p><button>התחילו</button>`;
+    card.innerHTML = `<span class="num"></span><h2></h2><div class="actions"></div>`;
+    card.querySelector('.num').textContent = `שיעור ${l.n}`;
     card.querySelector('h2').textContent = l.title;
-    card.querySelector('p').textContent = l.subtitle;
-    const btn = card.querySelector('button');
-    btn.addEventListener('click', async () => {
-      btn.disabled = true; btn.textContent = 'פותח…';
-      try {
-        const { sdk, pid } = await flowpad();
-        const agent = await sdk.Agent.getById(l.agent.replace(/^agent-/, ''));
-        const chat = await agent.openChat(pid);
-        window.parent.postMessage({ type: 'flowpad:navigate', address: `/dock/vibe/agentic_process-${chat.id}` }, '*');
-      } catch (e) {
-        msg.textContent = 'לא הצלחנו לפתוח את השיעור. נסו שוב.';
-        console.error('[course-home] open lesson failed', e);
-      } finally { btn.disabled = false; btn.textContent = 'התחילו'; }
-    });
+    const actions = card.querySelector('.actions');
+    // A lesson whose presentation is not open yet has no `lesson` URL: a disabled button, never a link to a locked page.
+    actions.appendChild(l.lesson ? action('a', 'lesson', 'לפתיחת השיעור', l.lesson) : action('button', 'lesson', 'השיעור ייפתח בקרוב'));
+    if (l.worksheet) actions.appendChild(action('a', 'secondary', 'לדף העבודה', l.worksheet));
+    // A lesson without an agent of its own shows no agent button.
+    if (l.agent) {
+      const btn = actions.appendChild(action('button', 'secondary', AGENT_LABEL));
+      btn.addEventListener('click', async () => {
+        btn.disabled = true; btn.textContent = 'פותח…'; msg.textContent = '';
+        try {
+          const { sdk, pid } = await flowpad();
+          const agent = await sdk.Agent.getById(l.agent.replace(/^agent-/, ''));
+          const chat = await agent.openChat(pid);
+          sdk.navigateHost({ address: `/dock/vibe/agentic_process-${chat.id}` });
+        } catch (e) {
+          msg.textContent = 'לא הצלחנו לפתוח את הסוכן. נסו שוב.';
+          console.error('[course-home] open agent failed', e);
+        } finally { btn.disabled = false; btn.textContent = AGENT_LABEL; }
+      });
+    }
     grid.appendChild(card);
   }
 </script>
