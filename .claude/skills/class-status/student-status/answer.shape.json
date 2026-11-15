@@ -7,7 +7,8 @@
   "machine",
   "games",
   "timeline",
-  "stats"
+  "stats",
+  "activity"
  ],
  "properties": {
   "tasks": {
@@ -41,6 +42,12 @@
        "null"
       ],
       "maxLength": 80
+     },
+     "live": {
+      "type": [
+       "boolean",
+       "null"
+      ]
      }
     }
    }
@@ -183,6 +190,25 @@
       "number",
       "null"
      ]
+    }
+   }
+  },
+  "activity": {
+   "type": "array",
+   "maxItems": 14,
+   "items": {
+    "type": "object",
+    "required": [
+     "date",
+     "prompts"
+    ],
+    "properties": {
+     "date": {
+      "type": "string"
+     },
+     "prompts": {
+      "type": "number"
+     }
     }
    }
   }

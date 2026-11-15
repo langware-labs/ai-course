@@ -50,3 +50,5 @@ time{border-bottom:1px dotted hsl(var(--muted-foreground));cursor:help}
 .needs{color:#c5221f;font-size:12px}.muted td{color:hsl(var(--muted-foreground))}
 .crumb{font-size:13px;margin-bottom:6px}.crumb a{cursor:pointer;color:hsl(var(--primary))}
 .badge.bad{background:#fce8e6;color:#c5221f}
+.spark{display:block;overflow:visible}.spark rect{fill:#1a73e8}.spark text{font-size:10px;text-anchor:middle;fill:hsl(var(--foreground))}.spark text.d{fill:hsl(var(--muted-foreground))}
+.live{font-size:12px;font-weight:600;white-space:nowrap}.live-ok{color:#137333}.live-bad{color:#c5221f}

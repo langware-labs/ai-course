@@ -50,6 +50,37 @@ def pill(status: str) -> str:
     return f'<span class="pill {cls}">{label}</span>'
 
 
+def live_mark(live) -> str:
+    """Whether a task's public page actually loaded (the machine checked the url); blank when there was none."""
+    if live is None:
+        return ""
+    return ' <span class="live live-ok">● חי</span>' if live else ' <span class="live live-bad">● לא עובד</span>'
+
+
+def spark(v: dict, big: bool = False) -> str:
+    """The student's prompts per day as small bars (the machine counted them); hover a bar for the day and count."""
+    days = [d for d in v.get("activity") or [] if d.get("date") and d.get("prompts")][-14:]
+    if not days:
+        return "—"
+    top = max(d["prompts"] for d in days)
+    bw, gap, h = (22, 6, 64) if big else (7, 3, 26)
+    bars, label_parts = "", []
+    for n, d in enumerate(days):
+        bh = max(2, round(d["prompts"] / top * h))
+        parts = d["date"].split("-")
+        day = f"{parts[2]}.{parts[1]}" if len(parts) == 3 else d["date"]  # YYYY-MM-DD -> DD.MM (already Israel-local)
+        label_parts.append(f'{day}: {d["prompts"]:g}')
+        bars += (f'<g><title>{e(day)} — {d["prompts"]:g} הודעות</title>'
+                 f'<rect x="{n * (bw + gap)}" y="{h - bh}" width="{bw}" height="{bh}" rx="1.5"/>'
+                 + (f'<text x="{n * (bw + gap) + bw / 2}" y="{h - bh - 3}">{d["prompts"]:g}</text>'
+                    f'<text class="d" x="{n * (bw + gap) + bw / 2}" y="{h + 12}">{e(day)}</text>' if big else "") + "</g>")
+    w, top_pad, bot = len(days) * (bw + gap) - gap, (14 if big else 0), (16 if big else 0)
+    label = ", ".join(label_parts)
+    return (f'<svg class="spark" dir="ltr" width="{w}" height="{h + top_pad + bot}" '
+            f'viewBox="0 {-top_pad} {w} {h + top_pad + bot}" role="img" '
+            f'aria-label="הודעות ליום: {e(label)}">{bars}</svg>')
+
+
 def tasks_of(v: dict) -> dict[str, dict]:
     """The three lesson tasks by name; a machine that named them differently is read by position."""
     listed = v.get("tasks") or []
@@ -78,7 +109,7 @@ def student_views(i: int, s: dict) -> str:
     badge = (f'<span class="badge bad">צריך עזרה: {e(stuck[0])}</span>' if stuck
              else '<span class="badge ok">לא תקוע — אין צורך בעזרה</span>')
     rows = "".join(
-        f'<div class="task card"><b>{e(n)}</b>{pill(x.get("status", ""))}<span>{e(x.get("evidence") or "")}'
+        f'<div class="task card"><b>{e(n)}</b>{pill(x.get("status", ""))}{live_mark(x.get("live"))}<span>{e(x.get("evidence") or "")}'
         + (f'<br><span class="needs">{e(x["issue"])}</span>' if x.get("issue") else "") + "</span></div>"
         for n, x in ts.items())
     games = ""
@@ -98,6 +129,7 @@ def student_views(i: int, s: dict) -> str:
 <div class="card"><div class="k">הודעות של התלמיד</div><div class="v">{st.get("student_messages") if st.get("student_messages") is not None else "—"}</div><div class="ev-t">פעילות אחרונה {t(st.get("last_activity"), "%H:%M:%S")}</div></div>
 <div class="card"><div class="k">מחשב</div><div class="v">{e(str(m.get("size") or "—"))} · {m.get("memory_gb") or "—"} GB</div><div class="ev-t">Flowpad {e(str(m.get("flowpad_version") or "—"))}</div></div>
 </div>
+<h2>פעילות — הודעות של התלמיד לפי יום</h2><div class="card">{spark(v, True)}</div>
 <h2>משימות השיעור</h2><div class="tasks">{rows}</div>
 {games}
 <a class="btn" onclick="go('t{i}')">ציר הזמן של השיחה ←</a>
@@ -139,11 +171,11 @@ def build(answers: dict, lesson: str) -> tuple[str, str]:
             rows.append(f'<tr class="stu" onclick="go(\'s{i}\')"><td><b>{name}</b><div class="code">••••{e(s["last4"])}</div></td>'
                         + "".join(f"<td>{pill(ts[n].get('status', ''))}</td>" for n in TASKS)
                         + f'<td class="needs" title="{e(need or "")}">{e((need or "")[:60])}</td><td>{t(st.get("first_activity"))}</td>'
-                        f'<td>{minutes(st)}</td><td>{t(st.get("last_activity"))}</td></tr>')
+                        f'<td>{minutes(st)}</td><td>{t(st.get("last_activity"))}</td><td>{spark(v)}</td></tr>')
             views.append(student_views(i, s))
         else:
             why = NO_ANSWER.get(s.get("reply_state") or "", "לא ענה") if s.get("asked") else "לא פתח את המחשב"
-            rows.append(f'<tr class="muted"><td>{name}<div class="code">••••{e(s["last4"])}</div></td><td colspan="7">{why}</td></tr>')
+            rows.append(f'<tr class="muted"><td>{name}<div class="code">••••{e(s["last4"])}</div></td><td colspan="8">{why}</td></tr>')
     sent = answers.get("sent_at")
     day = (_dt(sent) or datetime.now(timezone.utc)).astimezone(IL)
     help_badge = f'<span class="badge bad">{len(stuck)} צריכים עזרה</span>' if stuck else '<span class="badge ok">אף אחד לא תקוע</span>'
@@ -156,7 +188,7 @@ def build(answers: dict, lesson: str) -> tuple[str, str]:
 <div class="card"><div class="k">תקועים</div><div class="v" style="color:#c5221f">{len(stuck)}</div></div>
 <div class="card"><div class="k">לא ענו · לא פתחו</div><div class="v">{len(no_answer)} · {len(never)}</div></div>
 </div>
-<table class="cls"><tr><th>תלמיד</th>{"".join(f"<th>{n}</th>" for n in TASKS)}<th>צריך</th><th>התחיל</th><th>משחק ראשון</th><th>פעילות אחרונה</th></tr>{"".join(rows)}</table>
+<table class="cls"><tr><th>תלמיד</th>{"".join(f"<th>{n}</th>" for n in TASKS)}<th>צריך</th><th>התחיל</th><th>משחק ראשון</th><th>פעילות אחרונה</th><th>הודעות ליום</th></tr>{"".join(rows)}</table>
 <p class="ev-t" style="margin-top:12px">לחצו על תלמיד כדי לראות את הדוח המלא שלו ואת ציר הזמן של השיחה.</p>
 </div></section>'''
     css = (HERE / "templates" / "report.css").read_text()
