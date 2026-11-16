@@ -8,7 +8,7 @@
       "audience": "app",
       "serving": {
         "type": "proxy",
-        "start_cmd": "uv run --no-project python serve.py {port}",
+        "start_cmd": "uv run --no-project python serve.py {port} || python3 serve.py {port}",
         "health": "/"
       }
     }
