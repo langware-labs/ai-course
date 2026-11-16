@@ -97,8 +97,10 @@
       work.appendChild(document.createElement('span')).textContent = 'העבודות שלי:';
       for (const g of games) {
         const a = work.appendChild(document.createElement('a'));
-        a.href = `lesson-${String(l.n).padStart(2, '0')}/${encodeURIComponent(g)}/index.html`;
-        a.textContent = g;
+        // A game is a folder (<game>/index.html) or, from lesson 1's agent, one page (<name>.html).
+        const page = g.endsWith('.html');
+        a.href = `lesson-${String(l.n).padStart(2, '0')}/${encodeURIComponent(g)}${page ? '' : '/index.html'}`;
+        a.textContent = page ? g.slice(0, -5) : g;
       }
     }
     grid.appendChild(card);

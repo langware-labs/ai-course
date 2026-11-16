@@ -33,7 +33,11 @@ def my_work() -> dict:
     mine = {}
     if WORK.is_dir():
         for lesson in sorted(p for p in WORK.iterdir() if p.is_dir() and LESSON_DIR.fullmatch(p.name)):
-            games = sorted(g.name for g in lesson.iterdir() if (g / "index.html").is_file())
+            # A game folder (<game>/index.html), or one page saved straight in the lesson (lesson 1's agent).
+            games = sorted(
+                g.name for g in lesson.iterdir()
+                if (g / "index.html").is_file() or (g.is_file() and g.suffix == ".html")
+            )
             if games:
                 mine[str(int(lesson.name.split("-")[1]))] = games
     return mine
@@ -70,6 +74,8 @@ def resolve(path: str) -> Path | None:
 FORWARDED = ("/sdk/", "/api/")
 # What Flowpad writes into a page it serves itself (serve_static.API_ORIGIN_SNIPPET): the page's SDK
 # talks to the origin it came from — here this server, which forwards /api.
+# Every page of a student's game gets a way back to the course (added to the response, never to their file).
+BACK = "<a href=\"/\" style=\"position:fixed;top:8px;inset-inline-start:8px;z-index:2147483647;padding:4px 10px;border-radius:999px;background:#0f172a;color:#fff;font:600 13px system-ui,sans-serif;text-decoration:none;opacity:.85\">→ הקורס</a>".encode()
 API_ORIGIN = b"<script>globalThis.__FLOWPAD_API_URL__=globalThis.__FLOWPAD_API_URL__||window.location.origin;</script>"
 HOP = {"host", "connection", "keep-alive", "transfer-encoding", "te", "trailer", "upgrade", "content-length"}
 
@@ -121,6 +127,9 @@ class Handler(BaseHTTPRequestHandler):
         if target.suffix == ".html" and target.parent == HERE:
             head = body.lower().find(b"<head>")
             body = body[: head + 6] + API_ORIGIN + body[head + 6 :] if head >= 0 else API_ORIGIN + body
+        elif target.suffix == ".html":
+            end = body.lower().rfind(b"</body>")
+            body = body[:end] + BACK + body[end:] if end >= 0 else body + BACK
         self._send(200, body, kind)
 
     def _send(self, status: int, body: bytes, kind: str):
@@ -135,5 +144,35 @@ class Handler(BaseHTTPRequestHandler):
         pass
 
 
+def exit_with_flowpad() -> None:
+    """Stop when the Flowpad that started this server is gone: it starts a fresh one on the next open,
+    so a server whose Flowpad died would only be left running. The launcher (``uv run``) is our parent and
+    Flowpad its parent; POSIX only — elsewhere the server just lives until it is stopped."""
+    if os.name != "posix":
+        return
+    import subprocess
+    import threading
+    import time
+
+    def parent_of(pid: int) -> int:
+        out = subprocess.run(["ps", "-o", "ppid=", "-p", str(pid)], capture_output=True, text=True).stdout.strip()
+        return int(out) if out.isdigit() else 0
+
+    flowpad = parent_of(os.getppid()) or os.getppid()
+
+    def watch() -> None:
+        while True:
+            time.sleep(5)
+            try:
+                os.kill(flowpad, 0)
+            except ProcessLookupError:
+                os._exit(0)
+            except PermissionError:
+                pass
+
+    threading.Thread(target=watch, daemon=True).start()
+
+
 if __name__ == "__main__":
+    exit_with_flowpad()
     ThreadingHTTPServer(("127.0.0.1", int(sys.argv[1])), Handler).serve_forever()
