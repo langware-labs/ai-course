@@ -67,6 +67,9 @@ def resolve(path: str) -> Path | None:
 
 
 FORWARDED = ("/sdk/", "/api/")
+# What Flowpad writes into a page it serves itself (serve_static.API_ORIGIN_SNIPPET): the page's SDK
+# talks to the origin it came from — here this server, which forwards /api.
+API_ORIGIN = b"<script>globalThis.__FLOWPAD_API_URL__=globalThis.__FLOWPAD_API_URL__||window.location.origin;</script>"
 HOP = {"host", "connection", "keep-alive", "transfer-encoding", "te", "trailer", "upgrade", "content-length"}
 
 
@@ -113,7 +116,11 @@ class Handler(BaseHTTPRequestHandler):
         kind = mimetypes.guess_type(target.name)[0] or "application/octet-stream"
         if kind.startswith("text/") or kind in ("application/javascript", "application/json"):
             kind += "; charset=utf-8"
-        self._send(200, target.read_bytes(), kind)
+        body = target.read_bytes()
+        if target.suffix == ".html" and target.parent == HERE:
+            head = body.lower().find(b"<head>")
+            body = body[: head + 6] + API_ORIGIN + body[head + 6 :] if head >= 0 else API_ORIGIN + body
+        self._send(200, body, kind)
 
     def _send(self, status: int, body: bytes, kind: str):
         self.send_response(status)
