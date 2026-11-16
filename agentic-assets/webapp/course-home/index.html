@@ -20,6 +20,8 @@
   .btn.secondary { background:transparent; color:var(--accent); }
   .btn:disabled { opacity:.6; cursor:default; }
   .btn:focus-visible { outline:2px solid var(--fg); outline-offset:2px; }
+  .work { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; } .work a { color:var(--accent); font-weight:600; font-size:14px; }
+  .work span { color:var(--muted); font-size:13px; }
   .msg { color:var(--muted); font-size:13px; margin-top:18px; }
 </style>
 </head>
@@ -56,6 +58,8 @@
   }
   const msg = document.getElementById('msg');
   const lessons = await (await fetch('./lessons.json')).json();
+  // The student's own games, by lesson: { "4": ["sun-moon", ...] } (written by migrate/build_work_index.py; none yet = {}).
+  const mine = await fetch('./my-work.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
   const grid = document.getElementById('lessons');
   for (const l of lessons) {
     const card = document.createElement('div');
@@ -82,6 +86,17 @@
           console.error('[course-home] open agent failed', e);
         } finally { btn.disabled = false; btn.textContent = AGENT_LABEL; }
       });
+    }
+    const games = mine[String(l.n)] || [];
+    if (games.length) {
+      const work = card.appendChild(document.createElement('div'));
+      work.className = 'work';
+      work.appendChild(document.createElement('span')).textContent = 'העבודות שלי:';
+      for (const g of games) {
+        const a = work.appendChild(document.createElement('a'));
+        a.href = `lesson-${String(l.n).padStart(2, '0')}/${encodeURIComponent(g)}/index.html`;
+        a.textContent = g;
+      }
     }
     grid.appendChild(card);
   }

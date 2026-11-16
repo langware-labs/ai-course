@@ -1,6 +1,6 @@
 {
   "name": "course-home",
   "title": "הקורס",
-  "description": "Course home: a card per lesson, each opens its agent.",
-  "build": "."
+  "description": "Course home: a card per lesson, each opens its agent and shows the student's own work. Served from work/ (so the games are links): migrate/build_work_index.py copies index.html and lessons.json there and writes my-work.json.",
+  "build": "../../../work"
 }
