@@ -6,13 +6,18 @@ Serves exactly three things, and nothing else in the project (no .secrets, no .e
   /, /index.html, /lessons.json  — this folder, so a git pull is live at once;
   /my-work.json                  — {"<lesson>": ["<game>", ...]}, read from work/ on every request,
                                    so a new game shows up without a script;
-  /lesson-NN/<game>/...          — the student's games under work/lesson-NN/.
+  /lesson-NN/<game>/...          — the student's games under work/lesson-NN/;
+and forwards /sdk/* and /api/* to this machine's Flowpad, so the page's SDK (opening an agent) works
+the way it does on a page Flowpad serves itself.
 A fresh clone has no work/ yet: the page still loads, with no games listed.
 """
 import json
 import mimetypes
+import os
 import re
 import sys
+import urllib.error
+import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlparse
@@ -33,6 +38,20 @@ def my_work() -> dict:
     return mine
 
 
+def backend() -> str | None:
+    """This machine's Flowpad backend — ``FLOWPAD_BACKEND``, else the running instance's server.json
+    (``FLOW_INSTANCE``, default prod), read per request so a restarted backend is followed."""
+    explicit = os.environ.get("FLOWPAD_BACKEND", "").strip().rstrip("/")
+    if explicit:
+        return explicit
+    home = Path(os.environ.get("FLOW_HOME") or Path.home() / ".flow")
+    info = home / "instances" / (os.environ.get("FLOW_INSTANCE") or "prod") / "server.json"
+    try:
+        return f"http://127.0.0.1:{int(json.loads(info.read_text())['port'])}"
+    except (OSError, ValueError, KeyError):
+        return None
+
+
 def resolve(path: str) -> Path | None:
     """The file a request names, or None — never anything outside this folder's page or work/lesson-NN/."""
     if path in PAGE:
@@ -47,8 +66,44 @@ def resolve(path: str) -> Path | None:
     return target / "index.html" if target.is_dir() else target
 
 
+FORWARDED = ("/sdk/", "/api/")
+HOP = {"host", "connection", "keep-alive", "transfer-encoding", "te", "trailer", "upgrade", "content-length"}
+
+
 class Handler(BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
+    def _forward(self):
+        origin = backend()
+        if origin is None:
+            return self._send(502, b"Flowpad is not running", "text/plain")
+        length = int(self.headers.get("Content-Length") or 0)
+        body = self.rfile.read(length) if length else None
+        headers = {k: v for k, v in self.headers.items() if k.lower() not in HOP}
+        request = urllib.request.Request(origin + self.path, data=body, headers=headers, method=self.command)
+        try:
+            with urllib.request.urlopen(request, timeout=60) as answer:
+                status, got, data = answer.status, answer.headers, answer.read()
+        except urllib.error.HTTPError as e:
+            status, got, data = e.code, e.headers, e.read()
+        except OSError:
+            return self._send(502, b"Flowpad did not answer", "text/plain")
+        self.send_response(status)
+        for k, v in got.items():
+            if k.lower() not in HOP:
+                self.send_header(k, v)
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def do_POST(self):
+        return self._forward() if self.path.startswith(FORWARDED) else self._send(405, b"", "text/plain")
+
+    do_PUT = do_PATCH = do_DELETE = do_POST
+
     def do_GET(self):
+        if self.path.startswith(FORWARDED):
+            return self._forward()
         path = unquote(urlparse(self.path).path)
         if path == "/my-work.json":
             return self._send(200, json.dumps(my_work(), ensure_ascii=False).encode(), "application/json; charset=utf-8")
