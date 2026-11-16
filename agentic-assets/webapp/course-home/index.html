@@ -58,7 +58,7 @@
   }
   const msg = document.getElementById('msg');
   const lessons = await (await fetch('./lessons.json')).json();
-  // The student's own games, by lesson: { "4": ["sun-moon", ...] } (written by migrate/build_work_index.py; none yet = {}).
+  // The student's own games, by lesson: { "4": ["sun-moon", ...] } (listed live from work/ by serve.py; none yet = {}).
   const mine = await fetch('./my-work.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
   const grid = document.getElementById('lessons');
   for (const l of lessons) {

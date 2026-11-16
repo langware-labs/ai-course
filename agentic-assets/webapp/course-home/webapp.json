@@ -1,6 +1,16 @@
 {
   "name": "course-home",
   "title": "הקורס",
-  "description": "Course home: a card per lesson, each opens its agent and shows the student's own work. Served from work/ (so the games are links): migrate/build_work_index.py copies index.html and lessons.json there and writes my-work.json.",
-  "build": "../../../work"
+  "description": "Course home: a card per lesson, each opens its agent and shows the student's own games. serve.py serves this page and the games under work/, and lists them live — nothing to build or migrate.",
+  "build": ".",
+  "mounts": [
+    {
+      "audience": "app",
+      "serving": {
+        "type": "proxy",
+        "start_cmd": "uv run --no-project python serve.py {port}",
+        "health": "/"
+      }
+    }
+  ]
 }

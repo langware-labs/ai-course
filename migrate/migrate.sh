@@ -8,13 +8,12 @@
 # 2. games from the old per-lesson projects (ai-course-lesson-N/games/<game>) are copied to
 #    ai-course/work/lesson-0N/<game>; an existing game of the same name is never overwritten;
 #    the old projects are left in place;
-# 3. the course home is copied into work/ (it is served from there) with my-work.json, so each lesson card links the games.
+# 3. nothing to build: the course home's serve.py lists work/ live, so each lesson card links the games.
 # Prints one JSON line: what moved and where.
 set -euo pipefail
 BUNDLE="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 WS="$HOME/Flowpad workspace"
 COURSE="$WS/ai-course"
-HERE="$(cd "$(dirname "$0")" && pwd)"
 REF="$(git bundle list-heads "$BUNDLE" | head -1 | cut -d" " -f2)"
 
 git config --global --add safe.directory "$COURSE" 2>/dev/null || true
@@ -40,7 +39,6 @@ for old in "$WS"/ai-course-lesson-*; do
   done
 done
 
-python3 "$HERE/build_work_index.py" "$COURSE" >/dev/null
 printf '{"course":"%s","head":"%s","moved":[%s],"work":[%s]}\n' \
   "$COURSE" "$(git -C "$COURSE" rev-parse --short HEAD)" \
   "$(printf '"%s",' "${moved[@]:-}" | sed 's/,$//; s/^""$//')" \
