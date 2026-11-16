@@ -25,13 +25,14 @@ from urllib.parse import unquote, urlparse
 HERE = Path(__file__).resolve().parent
 WORK = (HERE / ".." / ".." / ".." / "work").resolve()
 PAGE = {"/": "index.html", "/index.html": "index.html", "/lessons.json": "lessons.json"}
-LESSON = re.compile(r"^/(lesson-\d\d)/(.+)$")
+LESSON_DIR = re.compile(r"lesson-\d\d")
+LESSON = re.compile(rf"^/({LESSON_DIR.pattern})/(.+)$")
 
 
 def my_work() -> dict:
     mine = {}
     if WORK.is_dir():
-        for lesson in sorted(p for p in WORK.iterdir() if p.is_dir() and re.fullmatch(r"lesson-\d\d", p.name)):
+        for lesson in sorted(p for p in WORK.iterdir() if p.is_dir() and LESSON_DIR.fullmatch(p.name)):
             games = sorted(g.name for g in lesson.iterdir() if (g / "index.html").is_file())
             if games:
                 mine[str(int(lesson.name.split("-")[1]))] = games
