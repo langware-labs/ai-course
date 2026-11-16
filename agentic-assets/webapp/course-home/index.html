@@ -40,7 +40,10 @@
   function flowpad() {
     ready ??= (async () => {
       const sdk = await import('/sdk/flowpad-sdk.js');
-      const pid = (await sdk.resolveAppHost())?.app?.project_id;
+      // serve.py runs the page on its own port, where the SDK cannot read the app from the address;
+      // Flowpad names the project in the frame's URL (?providerProject=) for exactly that case.
+      const pid = new URLSearchParams(location.search).get('providerProject')
+        || (await sdk.resolveAppHost().catch(() => null))?.app?.project_id;
       if (!pid) throw new Error('no project');
       return { sdk, pid };
     })().catch((e) => { ready = null; throw e; });
